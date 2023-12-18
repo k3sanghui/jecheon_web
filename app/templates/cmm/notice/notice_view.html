@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">공지사항</h5>
+    <a href="javascript:void(0)" data-uri="{{ url_for('notice._del', seq_noti=notice.seq_noti) }}" class="delete btn btn-danger" style="position: relative; margin-top: -60px; float: right;">삭제</a>
+    <form method="post" class="my-3">
+        <div class="mb-3">
+            <label for="ds_subject">제목</label>
+            <div class="form-control">{{ notice.ds_subject}}</div>
+        </div>
+        <div class="mb-3">
+            <label for="ds_content">내용</label>
+            <div class="form-control">{{ notice.ds_content|safe}}</div>
+        </div>
+        <div class="mb-3">
+            {% if file_list %}
+            <div>첨부파일</div>
+            <div class="form-control" style="height:100%;">
+            {% for file in file_list %}
+            <div><a href="{{ url_for('notice.download', seq_file=file.seq_file) }}">{{file.ds_orifile}}</a></div>
+            {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="ds_name">등록자</label>
+            <div class="form-control">{{ notice.ds_name}}</div>
+        </div>
+        <div class="mb-3">
+            <label for="ds_name">등록일</label>
+            <div class="form-control">{{notice.dt_create|datetime}}</div>
+        </div>
+        <a href="{{ url_for('notice._list') }}" class="btn btn-secondary">목록</a>
+        <a href="{{ url_for('notice.mod', seq_noti=notice.seq_noti) }}" class="btn btn-primary">수정</a>
+    </form>
+</div>
+<script type='text/javascript'>
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+</script>
+{% endblock %}

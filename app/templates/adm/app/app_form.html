@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">주민참여 신청</h5>
+    <form id="frm" method="post" enctype = "multipart/form-data" class="my-3">
+        <input type="hidden" name="seq_app" id="seq_app" value="{{ form.seq_app.data or '' }}">
+        <input type="hidden" name="seq_elet" id="seq_elet" value="{{ form.seq_elet.data or '' }}">
+        <input type="hidden" name="file_name" id="file_name" value="">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <input type="hidden" name="seq_user" id="seq_user" value="{{ form.seq_user.data or ''}}">
+        <div class="mb-3">
+            <label for="ds_app_name">신청자</label>
+            <input type="text" class="form-control" name="ds_app_name" id="ds_app_name" value="{{ form.ds_app_name.data or '' }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="ds_app_tel">연락처</label>
+            <input type="text" class="form-control" name="ds_app_tel" id="ds_app_tel" value="{{ form.ds_app_tel.data or '' }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="ds_app_title">개소명</label>
+            <input type="text" class="form-control" name="ds_app_title" id="ds_app_title" value="{{ form.ds_app_title.data or ''}}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="ds_addr">설치장소</label>
+            <input type="text" class="form-control" name="ds_addr" id="ds_addr" value="{{ form.ds_addr.data or '' }}" readonly>
+        </div>
+        <div class="mb-3 d-flex">
+            <div style="margin-right:1rem;">
+                <label for="no_width">가로(px)</label>
+                <input type="text" class="form-control" name="no_width" id="no_width" value="{{ form.no_width.data or '' }}" readonly>
+            </div>
+            <div>
+                <label for="no_height">세로(px)</label>
+                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ form.no_height.data or '' }}" readonly>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="ds_text">신청문구</label>
+            <input type="text" class="form-control" name="ds_text" id="ds_text" value="{{ form.ds_text.data or '' }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="ds_reason">신청사유</label>
+            <input type="text" class="form-control" name="ds_reason" id="ds_reason" value="{{ form.ds_reason.data or '' }}" readonly>
+        </div>
+        <div class="mb-3 input-date d-flex">
+            <div style="margin-right:1rem;">
+                <label for="dt_start">출력시작</label>
+                <input type="text" class="form-control" name="dt_start" id="dt_start" value="{{ form.dt_start.data or '' }}">
+            </div>
+            <div>
+                <label for="dt_end">출력종료</label>
+                <input type="text" class="form-control" name="dt_end" id="dt_end" value="{{ form.dt_end.data or '' }}">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="ds_real_text">적용문구</label>
+            <textarea id="ds_real_text" name="ds_real_text">{{ form.ds_real_text.data or ''}}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="Preview">미리보기</label>
+            <div id="Preview"></div>
+        </div>
+        <div class="mb-3">
+            <label for="ty_stat">신청상태</label>
+            <select name="ty_stat" id="ty_stat" title="신청상태" class="form-control">
+                <option>-선택-</option>
+                <option value="신청" {% if form.ty_stat.data=="신청" %}selected{% endif %}>신청</option>
+                <option value="승인" {% if form.ty_stat.data=="승인" %}selected{% endif %}>승인</option>
+                <option value="미승인" {% if form.ty_stat.data=="미승인" %}selected{% endif %}>미승인</option>
+                <option value="보류" {% if form.ty_stat.data=="보류" %}selected{% endif %}>보류</option>
+            </select>
+        </div>
+        <div class="mb-3 div-bigo" style="display:none;">
+            <label for="ty_stat">변경사유</label>
+            <input type="text" class="form-control" name="ds_bigo" id="ds_bigo" value="{{ form.ds_bigo.data or '' }}">
+        </div>
+        <a href="{{ url_for('app._list') }}" class="btn btn-secondary">취소</a>
+        <button type="submit" class="btn btn-primary">저장</button>
+    </form>
+</div>
+<script type='text/javascript'>
+const Preview = document.getElementById('Preview');
+//summernote 커스텀 버튼 미리보기 생성
+var PreviewButton = function (context) {
+    var ui = $.summernote.ui;
+    var button = ui.button({
+        className:"btn-preview",
+        contents: '<span>미리보기</span>',
+        tooltip: '미리보기',
+        click: function() {
+           fn_preview();
+        }
+    });
+    return button.render();
+};
+
+function fn_preview(){
+    var seq_app = $("#seq_app").val();
+    var seq_elet = $("#seq_elet").val();
+    var ds_real_text = $('#ds_real_text').summernote('code');
+    var data = {
+        'seq_app':seq_app,
+        'seq_elet':seq_elet,
+        'ds_real_text' : ds_real_text
+    }
+    $.ajax({
+        type: 'POST',
+            url: "/adm/app/preview",
+            data: data,
+            success: function(data){
+                $('#Preview').css({"width":data['no_width'], "height":data['no_height'], "background-color":"#000"});
+                $('#Preview').html(data['txt']);
+                $('#file_name').val(data['file_name'])
+            },
+            error: function(request, status, error){
+            }
+    })
+}
+
+$(document).ready(function() {
+    var fontList = ['NotoSansKR'];
+    $('#ds_real_text').summernote({
+        toolbar: [
+        //글씨체 굵게, 기울임, 밑줄, 지우기
+        ['style', ['bold', 'clear']],
+        ['font', fontList],
+        //글씨 사이즈
+        ['fontsize', ['fontsize']],
+        //색상
+        ['color', ['color']],
+        //줄 높이
+        ['height', ['height']],
+        //커스텀버튼
+        ['CustomButton', ['Preview']]
+        ],
+        focus : true,
+        height: 200, // 에디터 높이
+        minHeight: null, // 최소 높이
+        maxHeight: null, // 최대 높이
+        lang: "ko-KR", //한글 설정
+        placeholder: '최대 50자까지 쓸 수 있습니다', //placeholder 설정
+        fontNames: fontList,
+        fontNamesIgnoreCheck: fontList,
+        fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','26','28','30'],
+        buttons: {
+                Preview: PreviewButton,
+            },
+    });
+});
+
+$("div.note-editable").on('drop',function(e){
+    for(i=0; i< e.originalEvent.dataTransfer.files.length; i++){
+        uploadSummernoteImageFile(e.originalEvent.dataTransfer.files[i],$("#summernote")[0]);
+    }
+    e.preventDefault();
+});
+
+/**
+* 이미지 파일 업로드
+*/
+function sendFile(file, editor) {
+    data = new FormData();
+    data.append("file", file);
+    $.ajax({
+        data : data,
+        type : "POST",
+        url : "/adm/app/editImgUpload",
+        contentType : false,
+        processData : false,
+        success : function(data) {
+            $(editor).summernote('insertImage', data.url, function($image) {
+                $image.css('width', "25%");
+			});
+        }
+    });
+}
+$("div.input-date").each(function(){
+    var $inputs = $(this).find('input');
+    $inputs.datepicker({language : "ko"});
+    if ($inputs.length >= 2) {
+        var $from = $inputs.eq(0);
+        var $to   = $inputs.eq(1);
+        $from.on('changeDate', function (e) {
+            var d = new Date(e.date.valueOf());
+            $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+        });
+        $to.on('changeDate', function (e) {
+            var d = new Date(e.date.valueOf());
+            $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+        });
+    }
+})
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+
+//개소명 선택시
+$('#seq_elet').on('change', function(){
+    var title = $(this).find("option:selected").data("title");
+    var addr = $(this).find("option:selected").data("addr");
+    var width = $(this).find("option:selected").data("width");
+    var height = $(this).find("option:selected").data("height");
+    $('#ds_app_title').val(title);
+    $('#ds_addr').val(addr);
+    $('#no_width').val(width);
+    $('#no_height').val(height);
+});
+
+//개소명 선택시
+$('#ty_stat').on('change', function(){
+    var data = $(this).val();
+    if(data!="신청"){
+        $('.div-bigo').show();
+    }else{
+        $('.div-bigo').show();
+    }
+});
+
+/*
+$('#frm').on('submit', function(){
+    var ty_stat = $('#ty_stat').val();
+    msg=ty_stat+" 하시겠습니까?";
+    if(confirm(msg)) {
+        this.submit();
+    }else{
+        return false;
+    }
+});
+*/
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">전광판관리</h5>
+    <form method="post" class="my-3">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <div class="mb-3">
+            <label for="ty_gubun">구분</label>
+            <input type="text" class="form-control" name="ty_gubun" id="ty_gubun" value="{{ form.ty_gubun.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="id_settop">셋탑ID</label>
+            <input type="text" class="form-control" name="id_settop" id="id_settop" value="{{ form.id_settop.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="ds_title">개소명</label>
+            <input type="text" class="form-control" name="ds_title" id="ds_title" value="{{ form.ds_title.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="ds_addr">설치장소</label>
+            <input type="text" class="form-control" name="ds_addr" id="ds_addr" value="{{ form.ds_addr.data or '' }}">
+        </div>
+        <div class="mb-3 d-flex">
+            <div style="margin-right:5rem;">
+                <label for="no_width">가로(px)</label>
+                <input type="" class="form-control" name="no_width" id="no_width" value="{{ form.no_width.data or '' }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+            </div>
+            <div>
+                <label for="no_height">세로(px)</label>
+                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ form.no_height.data or '' }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="ds_bigo">비고</label>
+            <input type="text" class="form-control" name="ds_bigo" id="ds_bigo" value="{{ form.ds_bigo.data or '' }}">
+        </div>
+        <a href="{{ url_for('eld._list') }}" class="btn btn-secondary">취소</a>
+        <button type="submit" class="btn btn-primary">저장</button>
+    </form>
+</div>
+<script type='text/javascript'>
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">회원가입 - 상세</h5>
+    <form method="post" class="my-3">
+        <div class="mb-3">
+            <span>아이디</span>
+            <span>{{mem.id_user}}</span>
+        </div>
+         <div class="mb-3">
+            <span>이름</span>
+             <span>{{mem.ds_name}}</span>
+        </div>
+        <div class="mb-3">
+            <span>연락처</span>
+            <span>{{mem.ds_tel}}</span>
+        </div>
+        <div class="mb-3">
+            <span>이메일</span>
+            <span>{{mem.ds_email}}</span>
+        </div>
+        <div class="mb-3">
+            <span>권한</span>
+            <span>{{mem.no_level}}</span>
+        </div>
+        <a href="{{ url_for('mem._list') }}" class="btn btn-secondary">목록</a>
+        <a href="{{ url_for('mem.mod', seq_user=mem.seq_user) }}" class="btn btn-primary">수정</a>
+    </form>
+</div>
+<script type='text/javascript'>
+</script>
+{% endblock %}

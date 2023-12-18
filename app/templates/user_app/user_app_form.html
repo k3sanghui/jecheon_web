@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">서비스신청</h5>
+    <form id="frm" method="post" class="my-3">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <input type="hidden" name="seq_user" id="seq_user" value="{{g.user.seq_user}}">
+        <input type="hidden" name="ds_app_title" id="ds_app_title" value="">
+        <input type="hidden" name="temp_chk" id="temp_chk" value="">
+        <div class="mb-3">
+            <label for="ds_app_name">신청자</label>
+            <input type="text" class="form-control" name="ds_app_name" id="ds_app_name" value="{{g.user.ds_name}}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="ds_app_tel">연락처</label>
+            <input type="text" class="form-control" name="ds_app_tel" id="ds_app_tel" value="{{g.user.ds_tel}}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="seq_elet">개소명</label>
+            <select name="seq_elet" id="seq_elet" title="개소명" class="form-control">
+                    <option>-선택-</option>
+                    {% if title_list %}
+                    {% for title in title_list %}
+                    <option {% if form.seq_elet.data == title.seq_elet %} selected {% endif %} value="{{title.seq_elet}}" data-title="{{title.ds_title}}" data-addr="{{title.ds_addr}}" data-width="{{title.no_width}}" data-height="{{title.no_height}}">{{title.ds_title}}</option>
+                    {% endfor %}
+                    {% endif %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="ds_addr">설치장소</label>
+            <input type="text" class="form-control" name="ds_addr" id="ds_addr" value="{{ form.ds_addr.data or '' }}" readonly>
+        </div>
+        <div class="mb-3 d-flex">
+            <div style="margin-right:1rem;">
+                <label for="no_width">가로(px)</label>
+                <input type="text" class="form-control" name="no_width" id="no_width" value="{{ form.no_width.data or '' }}" readonly>
+            </div>
+            <div>
+                <label for="no_height">세로(px)</label>
+                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ form.no_height.data or '' }}" readonly>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="ds_text">신청문구</label>
+            <input type="text" class="form-control" name="ds_text" id="ds_text" value="{{ form.ds_text.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="ds_reason">신청사유</label>
+            <input type="text" class="form-control" name="ds_reason" id="ds_reason" value="{{ form.ds_reason.data or '' }}">
+        </div>
+        <div class="mb-3 input-date d-flex">
+            <div style="margin-right:1rem;">
+                <label for="dt_start">출력시작</label>
+                <input type="text" class="form-control" name="dt_start" id="dt_start" value="{{ form.dt_start.data or '' }}">
+            </div>
+            <div>
+                <label for="dt_end">출력종료</label>
+                <input type="text" class="form-control" name="dt_end" id="dt_end" value="{{ form.dt_end.data or '' }}">
+            </div>
+        </div>
+
+        <a href="{{ url_for('user_app._list') }}" class="btn btn-secondary">취소</a>
+        <a href="javascript:void(0)" class="tempins btn btn-secondary">임시저장</a>
+        <button type="submit" class="btn btn-primary">신청</button>
+    </form>
+</div>
+<script type='text/javascript'>
+$(function(){
+    var seq_elet ="{{form.seq_elet.data}}"
+    if (seq_elet){
+        var title = $("#seq_elet").find("option:selected").data("title");
+        var addr = $("#seq_elet").find("option:selected").data("addr");
+        var width = $("#seq_elet").find("option:selected").data("width");
+        var height = $("#seq_elet").find("option:selected").data("height");
+        $('#ds_app_title').val(title);
+        $('#ds_addr').val(addr);
+        $('#no_width').val(width);
+        $('#no_height').val(height);
+    }
+});
+
+$("div.input-date").each(function(){
+    var $inputs = $(this).find('input');
+    $inputs.datepicker({language : "ko"});
+    if ($inputs.length >= 2) {
+        var $from = $inputs.eq(0);
+        var $to   = $inputs.eq(1);
+        $from.on('changeDate', function (e) {
+            var d = new Date(e.date.valueOf());
+            $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+        });
+        $to.on('changeDate', function (e) {
+            var d = new Date(e.date.valueOf());
+            $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+        });
+    }
+})
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+
+//개소명 선택시
+$('#seq_elet').on('change', function(){
+    var title = $(this).find("option:selected").data("title");
+    var addr = $(this).find("option:selected").data("addr");
+    var width = $(this).find("option:selected").data("width");
+    var height = $(this).find("option:selected").data("height");
+    $('#ds_app_title').val(title);
+    $('#ds_addr').val(addr);
+    $('#no_width').val(width);
+    $('#no_height').val(height);
+});
+
+$('#frm').on('submit', function(){
+    var msg="";
+    var temp_chk = $('#temp_chk').val();
+    if(temp_chk=='Y'){
+        msg="임시저장 하시겠습니까?";
+    }else{
+        msg="입력한 정보로 신청하시겠습니까?";
+    }
+    if(confirm(msg)) {
+        this.submit();
+    }else{
+        return false;
+    }
+});
+
+const tempins_elements = document.getElementsByClassName("tempins");
+Array.from(tempins_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("임시저장 하시겠습니까?")) {
+            $('#temp_chk').val('Y');
+            $('#frm').submit();
+        }else{
+            $('#temp_chk').val('');
+            return false;
+        }
+    });
+});
+
+</script>
+{% endblock %}

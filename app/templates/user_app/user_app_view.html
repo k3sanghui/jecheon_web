@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">신청내역 - 상세</h5>
+    <form method="post" class="my-3">
+        <div class="mb-3">
+            <label for="ds_app_name">신청자</label>
+            <input type="text" class="form-control" name="ds_app_name" id="ds_app_name" value="{{user_app.ds_app_name}}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="ds_app_tel">연락처</label>
+            <input type="text" class="form-control" name="ds_app_tel" id="ds_app_tel" value="{{user_app.ds_app_tel}}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="ds_app_title">개소명</label>
+            <input type="text" class="form-control" name="ds_app_title" id="ds_app_title" value="{{user_app.ds_app_title}}" readonly>
+
+        </div>
+        <div class="mb-3">
+            <label for="ds_addr">설치장소</label>
+            <input type="text" class="form-control" name="ds_addr" id="ds_addr" value="{{ elet.ds_addr }}" readonly>
+        </div>
+        <div class="mb-3 d-flex">
+            <div style="margin-right:1rem;">
+                <label for="no_width">가로(px)</label>
+                <input type="text" class="form-control" name="no_width" id="no_width" value="{{ elet.no_width }}" readonly>
+            </div>
+            <div>
+                <label for="no_height">세로(px)</label>
+                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ elet.no_height }}" readonly>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="ds_text">신청문구</label>
+            <input type="text" class="form-control" name="ds_text" id="ds_text" value="{{ user_app.ds_text }}" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="ds_reason">신청사유</label>
+            <input type="text" class="form-control" name="ds_reason" id="ds_reason" value="{{ user_app.ds_reason }}" readonly>
+        </div>
+        <div class="mb-3 input-date d-flex">
+            <div style="margin-right:1rem;">
+                <label for="dt_start">출력시작</label>
+                <input type="text" class="form-control" name="dt_start" id="dt_start" value="{{ user_app.dt_start }}" readonly>
+            </div>
+            <div>
+                <label for="dt_end">출력종료</label>
+                <input type="text" class="form-control" name="dt_end" id="dt_end" value="{{ user_app.dt_end }}" readonly>
+            </div>
+        </div>
+        <a href="{{ url_for('user_app._list') }}" class="btn btn-secondary">목록</a>
+    </form>
+</div>
+<script type='text/javascript'>
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,6 @@
+@font-face {
+    font-family: 'NotoSansKR';
+    src: url('/static/css/font/NotoSansKr/NotoSansKR-Light.otf') format('opentype')
+}
+
+.pagination {justify-content: center;}

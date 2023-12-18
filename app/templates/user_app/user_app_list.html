@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <div class="row my-3">
+        <div class="col-6">
+            <div class="input-group">
+
+                <input type="text" id="search_kw" class="form-control" value="{{ kw or '' }}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="btn_search">조회</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <a href="{{ url_for('user_app.ins') }}" class="btn btn-primary f-right">등록</a>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+        <tr class="text-center table-dark list-tbl">
+            <th class="th-num">번호</th>
+            <th>개소명</th>
+            <th>신청일자</th>
+            <th>신청문구</th>
+            <th>출력시작</th>
+            <th>출력종료</th>
+            <th>신청상태</th>
+            <th>상태변경일자</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if app_list %}
+        {% for app in app_list %}
+        <tr class="text-center">
+            <td>{{ pagination.total - ((pagination.page-1) * pagination.per_page) - loop.index0 }}</td>
+            {% if app.ty_stat=='임시저장' %}
+            <td><a href="{{ url_for('user_app.mod', seq_app=app.seq_app) }}">{{app.ds_app_title}}</a></td>
+            {% else %}
+            <td><a href="{{ url_for('user_app.view', seq_app=app.seq_app) }}">{{app.ds_app_title}}</a></td>
+            {% endif %}
+            <td>{{app.dt_create|ymdhm}}</td>
+            <td>{{app.ds_text}}</td>
+            <td>{{app.dt_start}}</td>
+            <td>{{app.dt_end}}</td>
+            <td>{{app.ty_stat}}</td>
+            <td>{% if app.dt_statdate %}{{app.dt_statdate|ymdhm}}{% endif %}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="8" class="txt-center">데이터가 없습니다.</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    <!-- 페이징처리 시작 -->
+    {{ pagination.links }}
+    <!-- 페이징처리 끝 -->
+</div>
+<form id="searchForm" method="get" action="{{ url_for('app._list') }}">
+    <input type="hidden" id="kw" name="kw" value="{{ kw or '' }}">
+    <input type="hidden" id="page" name="page" value="{{ page }}">
+</form>
+{% endblock %}
+{% block script %}
+<script type='text/javascript'>
+const page_elements = document.getElementsByClassName("page-link");
+Array.from(page_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        document.getElementById('page').value = this.dataset.page;
+        document.getElementById('searchForm').submit();
+    });
+});
+</script>
+{% endblock %}

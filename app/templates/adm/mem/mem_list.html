@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <div class="row my-3">
+        <div class="col-6">
+            <div class="input-group">
+                <input type="text" id="search_kw" class="form-control" value="{{ kw or '' }}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <a href="{{ url_for('mem.ins') }}" class="btn btn-primary f-right">등록</a>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+        <tr class="text-center table-dark">
+            <th class="th-num">번호</th>
+            <th>아이디</th>
+            <th>이름</th>
+            <th>연락처</th>
+            <th>이메일</th>
+            <th>가입일자</th>
+            <th>최종접속</th>
+            <th>권한</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if mem_list %}
+        {% for mem in mem_list %}
+        <tr class="text-center">
+            <td>{{ pagination.total - ((pagination.page-1) * pagination.per_page) - loop.index0 }}</td>
+            <td><a href="{{ url_for('mem.view', seq_user=mem.seq_user) }}">{{mem.id_user}}</a></td>
+            <td>{{ mem.ds_name }}</td>
+            <td>{{ mem.ds_tel }}</td>
+            <td>{{ mem.ds_email }}</td>
+            <td>{{ mem.dt_create|ymdhm }}</td>
+            <td>{% if mem.dt_today %}{{ mem.dt_today|ymdhm }}{% endif %}</td>
+            <td>{{ mem.no_level }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="8">데이터가 없습니다.</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    <!-- 페이징처리 시작 -->
+    {{ pagination.links }}
+    <!-- 페이징처리 끝 -->
+</div>
+<form id="searchForm" method="get" action="{{ url_for('eld._list') }}">
+    <input type="hidden" id="kw" name="kw" value="{{ kw or '' }}">
+    <input type="hidden" id="page" name="page" value="{{ page }}">
+</form>
+{% endblock %}
+{% block script %}
+<script type='text/javascript'>
+const page_elements = document.getElementsByClassName("page-link");
+Array.from(page_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        document.getElementById('page').value = this.dataset.page;
+        document.getElementById('searchForm').submit();
+    });
+});
+</script>
+{% endblock %}

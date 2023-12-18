@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <div class="row my-3">
+        <form id="searchForm" method="get" action="{{ url_for('eld._list') }}">
+            <input type="hidden" id="page" name="page" value="{{ page }}">
+            <div class="row-col-6">
+                <div class="input-group">
+                    <label for="s_title" class="m-top5px">개소명</label>
+                    <select name="s_title" id="s_title" class="form-control m-right5px" title="개소명" style="flex:0 0 10rem">
+                        <option value="">전체</option>
+                        {% if title_list %}
+                        {% for title in title_list %}
+                        <option value="{{title.ds_title}}" {% if title.ds_title==s_title %}selected{% endif %}>{{title.ds_title}}</option>
+                        {% endfor %}
+                        {% endif %}
+                    </select>
+                    <label for="s_stat" class="m-top5px">신청상태</label>
+                    <select name="s_stat" id="s_stat" class="form-control" title="신청상태" style="flex:0 0 5rem;">
+                        <option value="">전체</option>
+                        <option value="신청" {% if s_stat=="신청" %}selected{% endif %}>신청</option>
+                        <option value="승인" {% if s_stat=="승인" %}selected{% endif %}>승인</option>
+                        <option value="미승인" {% if s_stat=="미승인" %}selected{% endif %}>미승인</option>
+                        <option value="보류" {% if s_stat=="보류" %}selected{% endif %}>보류</option>
+                    </select>
+                    <label for="s_date" class="m-top5px">신청일자</label>
+                    <input type="text" name="s_date" id="s_date" class="form-control" value="{{s_date}}" style="flex:0 0 7rem;">
+                </div>
+            </div>
+            <div class="row-col-3" style="margin-top:5px;">
+                <div class="input-group">
+                    <label for="s_gubun" class="m-top5px">검색구분</label>
+                    <select name="s_gubun" id="s_gubun" class="form-control" title="검색구분" style="flex:0 7rem;">
+                        <option value="">전체</option>
+                        <option value="ds_app_name" {% if s_gubun=="ds_app_name" %}selected{% endif %}>신청자</option>
+                        <option value="ds_text" {% if s_gubun=="ds_text" %}selected{% endif %}>신청문구</option>
+                    </select>
+                    <input type="text" name="stx" id="stx" class="form-control" value="{{ stx or '' }}" style="flex:0 0 20rem;">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="btn_search">조회</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <table class="table">
+        <thead>
+        <tr class="text-center table-dark">
+            <th class="th-num">번호</th>
+            <th>개소명</th>
+            <th>신청자</th>
+            <th>신청일자</th>
+            <th>신청문구</th>
+            <th>출력시작</th>
+            <th>출력종료</th>
+            <th>신청상태</th>
+            <th>상태변경일자</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if app_list %}
+        {% for app in app_list %}
+        <tr class="text-center">
+            <td>{{ pagination.total - ((pagination.page-1) * pagination.per_page) - loop.index0 }}</td>
+            {% if app.ty_stat=='신청' %}
+            <td><a href="{{ url_for('app.mod', seq_app=app.seq_app) }}">{{app.ds_app_title}}</a></td>
+            {% else %}
+            <td><a href="{{ url_for('app.view', seq_app=app.seq_app) }}">{{app.ds_app_title}}</a></td>
+            {% endif %}
+            <td>{{app.ds_app_name}}</td>
+            <td>{{app.dt_create|ymdhm}}</td>
+            <td>{{app.ds_text}}</td>
+            <td>{{app.dt_start}}</td>
+            <td>{{app.dt_end}}</td>
+            <td>{{app.ty_stat}}</td>
+            <td>{% if app.dt_statdate %}{{app.dt_statdate}}{% endif %}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="8" class="txt-center">데이터가 없습니다.</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    <!-- 페이징처리 시작 -->
+    {{ pagination.links }}
+    <!-- 페이징처리 끝 -->
+</div>
+{% endblock %}
+{% block script %}
+<script type='text/javascript'>
+$(function() {
+		$('#s_date').datepicker({
+		    format: "yyyy-mm-dd",	//데이터 포맷 형식(yyyy : 년 mm : 월 dd : 일 )
+		    endDate: '+1',	//달력에서 선택 할 수 있는 가장 느린 날짜. 이후로 선택 불가 ( d : 일 m : 달 y : 년 w : 주)
+		    autoclose : true,	//사용자가 날짜를 클릭하면 자동 캘린더가 닫히는 옵션
+		    templates : {
+		        leftArrow: '&laquo;',
+		        rightArrow: '&raquo;'
+		    }, //다음달 이전달로 넘어가는 화살표 모양 커스텀 마이징
+		    showWeekDays : true ,// 위에 요일 보여주는 옵션 기본값 : true
+		    todayHighlight : true ,	//오늘 날짜에 하이라이팅 기능 기본값 :false
+		    toggleActive : true,	//이미 선택된 날짜 선택하면 기본값 : false인경우 그대로 유지 true인 경우 날짜 삭제
+		    weekStart : 0 ,//달력 시작 요일 선택하는 것 기본값은 0인 일요일
+		    language : "ko"	//달력의 언어 선택, 그에 맞는 js로 교체해줘야한다.
+
+		});//datepicker end
+	});//ready end
+
+
+const page_elements = document.getElementsByClassName("page-link");
+Array.from(page_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        document.getElementById('page').value = this.dataset.page;
+        document.getElementById('searchForm').submit();
+    });
+});
+</script>
+{% endblock %}

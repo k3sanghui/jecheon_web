@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">회원가입</h5>
+    <form method="post" onsubmit="return fn_submit(this);">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <input type="hidden" name="over_lap" id="over_lap" value="N">
+        <input type="hidden" name="yn_emailcertify" id="yn_emailcertify" value="N">
+        <input type="hidden" name="seq_certify" id="seq_certify" value="">
+        <div class="mb-3">
+            <label for="id_user">아이디</label>
+            <div class="d-flex">
+                <input type="text" class="form-control" name="id_user" id="id_user"
+                       value="{{ form.id_user.data or '' }}" style="width: 25rem;">
+                <a href="javascript:void(0)" class="btn_over_lap btn btn-secondary" data-uri="{{ url_for('auth.over_lap', ) }}" style="margin-left:1rem">중복체크</a>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="ds_password">비밀번호</label>
+            <input type="password" class="form-control" name="ds_password" id="ds_password"
+                   value="{{ form.ds_password.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="ds_password_check">비밀번호 확인</label>
+            <input type="password" class="form-control" name="ds_password_check" id="ds_password_check"
+                   value="{{ form.ds_password_check.data or '' }}">
+        </div>
+         <div class="mb-3">
+            <label for="ds_name">이름</label>
+            <input type="text" class="form-control" name="ds_name" id="ds_name"
+                   value="{{ form.ds_name.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="ds_tel">연락처</label>
+            <input type="text" class="form-control" name="ds_tel" id="ds_tel"
+                   value="{{ form.ds_tel.data or '' }}" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');">
+        </div>
+        <div class="mb-3">
+            <label for="ds_email">이메일</label>
+            <div class="d-flex">
+                <input type="text" class="form-control" name="ds_email" id="ds_email"
+                       value="{{ form.ds_email.data or '' }}" style="width: 25rem;">
+                <a href="javascript:void(0)" onclick="" class="btn_email_auth btn btn-secondary" style="margin-left:1rem">인증번호 받기</a>
+            </div>
+        </div>
+        <div class="d-codenum mb-3" style="display:none;">
+            <label for="no_codenum">인증번호</label>
+            <input type="text" class="form-control" name="no_codenum" id="no_codenum"
+                       value="" style="width: 25rem;">
+        </div>
+        <a href="" class="btn btn-secondary">취소</a>
+        <button type="submit" id="btn_submit" accesskey="s" class="btn btn-primary">저장</button>
+    </form>
+</div>
+<script type='text/javascript'>
+//아이디 중복 체크
+const btn_over_lap = document.getElementsByClassName("btn_over_lap");
+Array.from(btn_over_lap).forEach(function(element) {
+    element.addEventListener('click', function() {
+        var id_user = document.getElementById('id_user').value
+        $.ajax({
+            type: "POST",
+            url: "/auth/overlap",
+            data: {id_user:id_user},
+            success: function(res){
+                if(res.result=="success"){
+                    document.getElementById('over_lap').value = 'Y';
+                }else{
+                    document.getElementById('over_lap').value = 'N';
+                    document.getElementById('id_user').focus();
+
+                }
+                alert(res.msg);
+            }
+        })
+    });
+});
+
+//이메일 본인인증
+const btn_email_auth = document.getElementsByClassName("btn_email_auth");
+Array.from(btn_email_auth).forEach(function(element) {
+    element.addEventListener('click', function() {
+        var ds_email = document.getElementById('ds_email').value
+        var id_user = document.getElementById('id_user').value
+        if (!id_user){
+            alert("아이디는 필수 입력입니다.");
+            return false;
+        }
+        $('.d-codenum').show();
+        $.ajax({
+            type: "POST",
+            url: "/auth/sendOtp/",
+            data: {id_user:id_user,ds_email:ds_email},
+            success: function(res){
+                if(res.code==200){
+                    document.getElementById('yn_emailcertify').value = 'Y';
+                    document.getElementById('seq_certify').value = res.seq_certify;
+                }else{
+                    document.getElementById('yn_emailcertify').value = 'N';
+                    document.getElementById('ds_email').focus();
+                }
+                alert(res.msg);
+            }
+        })
+    });
+});
+
+function fn_submit(f){
+    if(!f.id_user.value){
+        alert('아이디는 필수 입력 입니다.');
+        f.id_user.focus();
+        return false;
+    }else{
+        if(f.over_lap.value != "Y"){
+            alert('아이디 중복체크를 하지 않으셨습니다.');
+            return false;
+        }
+    }
+
+    if(!f.ds_password.value){
+        alert('비밀번호는 필수 입력 입니다.');
+        f.ds_password.focus();
+        return false;
+    }
+
+    if (f.ds_password.value != f.ds_password_check.value) {
+        alert("비밀번호가 같지 않습니다.");
+        f.ds_password_check.focus();
+        return false;
+    }
+
+    if(f.ds_password.value.length > 0){
+        if(f.ds_password.value.length < 8){
+            alert('비밀번호를 8글자 이상 입력하세요.');
+            f.ds_password.focus();
+            return false;
+        }
+    }
+
+    if (f.ds_name.value.length < 1) {
+        alert("이름은 필수 입력 입니다.");
+        f.ds_name.focus();
+        return false;
+    }
+
+    if (f.ds_tel.value.length < 1) {
+        alert("연락처는 필수 입력 입니다.");
+        f.ds_tel.focus();
+        return false;
+    }else{
+        tel_chk = phoneNumberCheck(f.ds_tel.value);
+        if(!tel_chk){
+            alert("연락처 형식이 올바르지 않습니다.");
+            f.ds_tel.focus();
+            return false;
+        }
+    }
+
+    if (f.ds_email.value.length < 1) {
+        alert("이메일은 필수 입력 입니다.");
+        f.ds_email.focus();
+        return false;
+    }else{
+        email_chk = emailCheck(f.ds_email.value);
+        if(!email_chk){
+            alert("유효하지 않은 이메일 주소입니다.");
+            f.ds_email.focus();
+            return false;
+        }
+    }
+
+    document.getElementById("btn_submit").disabled = "disabled";
+    return true;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">회원가입</h5>
+    <form method="post">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <input type="hidden" name="over_lap" id="over_lap" value="N">
+        <input type="hidden" name="yn_emailcertify" id="yn_emailcertify" value="N">
+        <div class="mb-3">
+            <label for="id_user">아이디</label>
+            <div class="d-flex">
+                <input type="text" class="form-control w-25rem" name="id_user" id="id_user"
+                       value="{{ form.id_user.data or '' }}">
+                {% if not seq_user %}
+                <a href="javascript:void(0)" class="btn_over_lap btn btn-secondary" data-uri="{{ url_for('auth.over_lap', ) }}" style="margin-left:1rem">중복체크</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="ds_password">비밀번호</label>
+            <input type="password" class="form-control w-25rem" name="ds_password" id="ds_password"
+                   value="{{ form.ds_password.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="ds_password_check">비밀번호 확인</label>
+            <input type="password" class="form-control w-25rem" name="ds_password_check" id="ds_password_check"
+                   value="{{ form.ds_password_check.data or '' }}">
+        </div>
+         <div class="mb-3">
+            <label for="ds_name">이름</label>
+            <input type="text" class="form-control w-25rem" name="ds_name" id="ds_name"
+                   value="{{ form.ds_name.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="ds_tel">연락처</label>
+            <input type="text" class="form-control w-25rem" name="ds_tel" id="ds_tel"
+                   value="{{ form.ds_tel.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="ds_email">이메일</label>
+            <div class="d-flex">
+                <input type="text" class="form-control w-25rem" name="ds_email" id="ds_email"
+                       value="{{ form.ds_email.data or '' }}" style="width: 25rem;">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="no_level">권한</label>
+            <select name="no_level" id="no_level" title="권한" class="form-control" style="width:5rem;">
+                {% for i in range(1,11) %}
+                <option value="{{i}}" {% if form.no_level.data == i %} selected {% endif %}>{{i}}</option>
+                {% endfor%}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="ds_bigo">비고</label>
+            <input type="text" class="form-control" name="ds_bigo" id="ds_bigo" value="{{ form.ds_bigo.data or '' }}">
+        </div>
+        <a href="" class="btn btn-secondary">취소</a>
+        <button type="submit" class="btn btn-primary">저장</button>
+    </form>
+</div>
+<script type='text/javascript'>
+//아이디 중복 체크
+const btn_over_lap = document.getElementsByClassName("btn_over_lap");
+Array.from(btn_over_lap).forEach(function(element) {
+    element.addEventListener('click', function() {
+        var id_user = document.getElementById('id_user').value
+        $.ajax({
+            type: "POST",
+            url: "/auth/overlap",
+            data: {id_user:id_user},
+            success: function(res){
+                if(res.result=="success"){
+                    document.getElementById('over_lap').value = 'Y';
+                }else{
+                    document.getElementById('over_lap').value = 'N';
+                    document.getElementById('id_user').focus();
+
+                }
+                alert(res.msg);
+            }
+        })
+    });
+});
+</script>
+{% endblock %}
