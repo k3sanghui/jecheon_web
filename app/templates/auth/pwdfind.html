@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="find-cont" class="container">
+    <h5 class="my-3 border-bottom pb-2 menu-title">비밀번호 찾기</h5>
+    <form method="post" onsubmit="return fn_submit(this);" class="frm-view">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <input type="hidden" name="ty_menu" id="ty_menu" value="pwdfind">
+        <input type="hidden" name="yn_emailcertify" id="yn_emailcertify" value="N">
+        <input type="hidden" name="seq_certify" id="seq_certify" value="">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="id_user" class="frm-label">아이디</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="id_user" id="id_user"
+                   value="" autocomplete="off" onkeyup="characterCheck(this)" onkeydown="characterCheck(this)">
+            </div>
+            <div class="col-6 col-md-4">
+                <a href="javascript:void(0)" class="btn_id_find btn btn-secondary" style="width:10rem;">아이디 확인</a>
+            </div>
+        </div>
+        <div class="mb-3 auth-email-div" style="display:none;">
+            <div class="mb-3 row frm-row">
+                <div class="col-md-1">
+                    <label for="ds_email" class="frm-label">이메일</label>
+                </div>
+                <div class="col-6 col-md-4">
+                    <input type="text" class="form-control" name="ds_email" id="ds_email"
+                           value="" autocomplete="off">
+                </div>
+                <div class="col-6 col-md-4">
+                    <a href="javascript:void(0)" class="btn_email_auth btn btn-secondary" style="width:10rem;">인증번호 받기</a>
+                </div>
+            </div>
+            <div class="mb-3 row frm-row">
+                <div class="col-md-1">
+                    <label for="no_codenum" class="frm-label">인증번호</label>
+                </div>
+                <div class="col-6 col-md-4">
+                    <input type="text" class="form-control" name="no_codenum" id="no_codenum"
+                           value="" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary" style="width:10rem;">처음으로</a>
+            <button type="submit" class="btn btn-primary btn-next" style="width:10rem;">다음</button>
+        </div>
+    </form>
+</div>
+<script type='text/javascript'>
+
+const btn_id_find = document.querySelector(".btn_id_find");
+btn_id_find.addEventListener('click', function() {
+    var id_user = document.getElementById('id_user').value;
+    $.ajax({
+        type: "POST",
+        url: "/auth/id_find/",
+        data: {id_user:id_user},
+        success: function(res){
+            if(res.code==200){
+                $("#id_user").attr("readonly",true)
+                $(".auth-email-div").show();
+            }else{
+                alert(res.msg);
+                $(".auth-email-div").hide();
+            }
+        }
+    })
+});
+
+//이메일 본인인증
+const btn_email_auth = document.getElementsByClassName("btn_email_auth");
+Array.from(btn_email_auth).forEach(function(element) {
+    element.addEventListener('click', function() {
+        var ds_email = document.getElementById('ds_email').value;
+        var id_user = document.getElementById('id_user').value;
+        var ty_menu = document.getElementById('ty_menu').value;
+        $.ajax({
+            type: "POST",
+            url: "/auth/auth_email/",
+            data: {id_user:id_user,ds_email:ds_email,ty_menu:ty_menu},
+            success: function(res){
+                if(res.code==200){
+                    document.getElementById('yn_emailcertify').value = 'Y';
+                    document.getElementById('seq_certify').value = res.seq_certify;
+                }else{
+                    document.getElementById('yn_emailcertify').value = 'N';
+                    document.getElementById('ds_email').focus();
+                }
+                alert(res.msg);
+            }
+        })
+    });
+});
+
+function fn_submit(f){
+    if (f.id_user.value.length < 1) {
+        alert("아이디확인은 필수 입니다.");
+        f.id_user.focus();
+        return false;
+    }
+
+    if (f.ds_email.value.length < 1) {
+        alert("이메일은 필수 입력 입니다.");
+        f.ds_email.focus();
+        return false;
+    }else{
+        email_chk = emailCheck(f.ds_email.value);
+        if(!email_chk){
+            alert("유효하지 않은 이메일 주소입니다.");
+            f.ds_email.focus();
+            return false;
+        }
+    }
+
+    var ori_email = "{{ form.ds_email.data }}";
+    if (ori_email != f.ds_email.value){
+        if (f.yn_emailcertify.value!="Y"){
+            alert("이메일 인증을 진행해 주세요.");
+            return false;
+        }
+    }
+
+    document.getElementById("btn_submit").disabled = "disabled";
+    return true;
+}
+</script>
+{% endblock %}

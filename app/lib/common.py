@@ -15,7 +15,7 @@ import sys
 import smtplib
 import fleep as fleep
 from random import randint
-from flask import request
+from flask import request, render_template
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -173,3 +173,8 @@ def file_info(file):
         else:
             os.remove(file)
     return data
+
+# SSTI 공격 제한
+def ssti_check(txt):
+    if re.search('[-=+,#/\?:^$.@*\"※~&%·!』\\´\(\)\[\]<\>`\'…》{}]', txt):
+        return render_template('error.html'), 403

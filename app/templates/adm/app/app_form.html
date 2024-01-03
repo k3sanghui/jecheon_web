@@ -1,85 +1,142 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container">
-    <h5 class="my-3 border-bottom pb-2">주민참여 신청</h5>
-    <form id="frm" method="post" enctype = "multipart/form-data" class="my-3">
+    <h5 class="my-3 border-bottom pb-2 menu-title">신청내역 - 상세</h5>
+    {% if form.seq_app.data %}
+    <a href="javascript:void(0)" data-uri="{{ url_for('app._del', seq_app=form.seq_app.data) }}" class="delete btn btn-danger" style="position: relative; margin-top: -60px; float: right;">삭제</a>
+    {% endif %}
+    <form id="frm" method="post" enctype = "multipart/form-data" class="my-3 frm-view">
         <input type="hidden" name="seq_app" id="seq_app" value="{{ form.seq_app.data or '' }}">
         <input type="hidden" name="seq_elet" id="seq_elet" value="{{ form.seq_elet.data or '' }}">
         <input type="hidden" name="file_name" id="file_name" value="">
         {{ form.csrf_token }}
         {% include "form_errors.html" %}
         <input type="hidden" name="seq_user" id="seq_user" value="{{ form.seq_user.data or ''}}">
-        <div class="mb-3">
-            <label for="ds_app_name">신청자</label>
-            <input type="text" class="form-control" name="ds_app_name" id="ds_app_name" value="{{ form.ds_app_name.data or '' }}" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="ds_app_tel">연락처</label>
-            <input type="text" class="form-control" name="ds_app_tel" id="ds_app_tel" value="{{ form.ds_app_tel.data or '' }}" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="ds_app_title">개소명</label>
-            <input type="text" class="form-control" name="ds_app_title" id="ds_app_title" value="{{ form.ds_app_title.data or ''}}" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="ds_addr">설치장소</label>
-            <input type="text" class="form-control" name="ds_addr" id="ds_addr" value="{{ form.ds_addr.data or '' }}" readonly>
-        </div>
-        <div class="mb-3 d-flex">
-            <div style="margin-right:1rem;">
-                <label for="no_width">가로(px)</label>
-                <input type="text" class="form-control" name="no_width" id="no_width" value="{{ form.no_width.data or '' }}" readonly>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_app_name" class="frm-label">신청자<span class="required"> *</span></label>
             </div>
-            <div>
-                <label for="no_height">세로(px)</label>
-                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ form.no_height.data or '' }}" readonly>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_app_name" id="ds_app_name" value="{{ form.ds_app_name.data or '' }}" readonly autocomplete="off">
             </div>
         </div>
-        <div class="mb-3">
-            <label for="ds_text">신청문구</label>
-            <input type="text" class="form-control" name="ds_text" id="ds_text" value="{{ form.ds_text.data or '' }}" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="ds_reason">신청사유</label>
-            <input type="text" class="form-control" name="ds_reason" id="ds_reason" value="{{ form.ds_reason.data or '' }}" readonly>
-        </div>
-        <div class="mb-3 input-date d-flex">
-            <div style="margin-right:1rem;">
-                <label for="dt_start">출력시작</label>
-                <input type="text" class="form-control" name="dt_start" id="dt_start" value="{{ form.dt_start.data or '' }}">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_app_tel" class="frm-label">연락처<span class="required"> *</span></label>
             </div>
-            <div>
-                <label for="dt_end">출력종료</label>
-                <input type="text" class="form-control" name="dt_end" id="dt_end" value="{{ form.dt_end.data or '' }}">
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_app_tel" id="ds_app_tel" value="{{ form.ds_app_tel.data or '' }}" readonly autocomplete="off">
             </div>
         </div>
-        <div class="mb-3">
-            <label for="ds_real_text">적용문구</label>
-            <textarea id="ds_real_text" name="ds_real_text">{{ form.ds_real_text.data or ''}}</textarea>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_app_title" class="frm-label">개소명<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_app_title" id="ds_app_title" value="{{ form.ds_app_title.data or ''}}" readonly autocomplete="off">
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="Preview">미리보기</label>
-            <div id="Preview"></div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_addr" class="frm-label">설치장소<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_addr" id="ds_addr" value="{{ form.ds_addr.data or '' }}" readonly autocomplete="off">
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="ty_stat">신청상태</label>
-            <select name="ty_stat" id="ty_stat" title="신청상태" class="form-control">
-                <option>-선택-</option>
-                <option value="신청" {% if form.ty_stat.data=="신청" %}selected{% endif %}>신청</option>
-                <option value="승인" {% if form.ty_stat.data=="승인" %}selected{% endif %}>승인</option>
-                <option value="미승인" {% if form.ty_stat.data=="미승인" %}selected{% endif %}>미승인</option>
-                <option value="보류" {% if form.ty_stat.data=="보류" %}selected{% endif %}>보류</option>
-            </select>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="no_width" class="frm-label">가로(px)<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-1">
+                <input type="" class="form-control" name="no_width" id="no_width" value="{{ form.no_width.data or '' }}" readonly autocomplete="off">
+            </div>
+            <div class="col-md-1">
+                <label for="no_height" class="frm-label">세로(px)<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-1">
+                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ form.no_height.data or '' }}" readonly autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_text" class="frm-label">신청문구<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-10">
+                <input type="text" class="form-control" name="ds_text" id="ds_text" value="{{ form.ds_text.data or '' }}" readonly autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_reason" class="frm-label">신청사유<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-10">
+                <input type="text" class="form-control" name="ds_reason" id="ds_reason" value="{{ form.ds_reason.data or '' }}" readonly autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row input-date">
+            <div class="col-md-1">
+                <label for="dt_start" class="frm-label">출력시작<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-2">
+                <input type="text" class="form-control" name="dt_start" id="dt_start" value="{{ form.dt_start.data or '' }}" autocomplete="off">
+            </div>
+            <div class="col-md-1">
+                <label for="dt_end" class="frm-label">출력종료<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-2">
+                <input type="text" class="form-control" name="dt_end" id="dt_end" value="{{ form.dt_end.data or '' }}" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_real_text" class="frm-label">적용문구<span class="required"> *</span></label><br>
+            </div>
+            <div class="col-6 col-md-10">
+                <h6 style="font-weight:bold; color:#FE2E2E;">*폰트색상 기본값이 검정색입니다. 컬러를 선택하여 주시길 바랍니다.</h6>
+                <textarea id="ds_real_text" name="ds_real_text">{{ form.ds_real_text.data or ''}}</textarea>
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="Preview" class="frm-label">미리보기</label>
+            </div>
+            <div class="col-6 col-md-10">
+                <h6 style="font-weight:bold; color:#FE2E2E;">*작성 및 저장 전 미리보기 버튼을 클릭해 주시길 바랍니다.</h6>
+                <div id="Preview"></div>
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ty_stat" class="frm-label">신청상태<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <select name="ty_stat" id="ty_stat" title="신청상태" class="form-select">
+                    <option>-선택-</option>
+                    <option value="신청" {% if form.ty_stat.data=="신청" %}selected{% endif %}>신청</option>
+                    <option value="승인" {% if form.ty_stat.data=="승인" %}selected{% endif %}>승인</option>
+                    <option value="미승인" {% if form.ty_stat.data=="미승인" %}selected{% endif %}>미승인</option>
+                    <option value="보류" {% if form.ty_stat.data=="보류" %}selected{% endif %}>보류</option>
+                </select>
+            </div>
         </div>
         <div class="mb-3 div-bigo" style="display:none;">
             <label for="ty_stat">변경사유</label>
-            <input type="text" class="form-control" name="ds_bigo" id="ds_bigo" value="{{ form.ds_bigo.data or '' }}">
+            <input type="text" class="form-control" name="ds_bigo" id="ds_bigo" value="{{ form.ds_bigo.data or '' }}" autocomplete="off">
         </div>
-        <a href="{{ url_for('app._list') }}" class="btn btn-secondary">취소</a>
-        <button type="submit" class="btn btn-primary">저장</button>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('app._list') }}" class="btn btn-secondary">취소</a>
+            <button type="submit" class="btn btn-primary">저장</button>
+        </div>
     </form>
 </div>
 <script type='text/javascript'>
+/*
+$(function() {
+    $('#dt_start').datepicker('option', 'minDate','0');//오늘이후 선택가능
+});
+*/
+
 const Preview = document.getElementById('Preview');
 //summernote 커스텀 버튼 미리보기 생성
 var PreviewButton = function (context) {
@@ -119,6 +176,7 @@ function fn_preview(){
 }
 
 $(document).ready(function() {
+    $('#dt_start').datepicker({language : "ko", minDate: 0});
     var fontList = ['NotoSansKR'];
     $('#ds_real_text').summernote({
         toolbar: [
@@ -128,8 +186,11 @@ $(document).ready(function() {
         //글씨 사이즈
         ['fontsize', ['fontsize']],
         //색상
-        ['color', ['color']],
+        ['color', ['forecolor']],
         //줄 높이
+        ['height', ['height']],
+        //
+        ['para', ['ul', 'ol', 'paragraph']],
         ['height', ['height']],
         //커스텀버튼
         ['CustomButton', ['Preview']]
@@ -147,14 +208,17 @@ $(document).ready(function() {
                 Preview: PreviewButton,
             },
     });
+    $('.note-editing-area').css({'background-color': '#000'});
 });
 
+/*
 $("div.note-editable").on('drop',function(e){
     for(i=0; i< e.originalEvent.dataTransfer.files.length; i++){
         uploadSummernoteImageFile(e.originalEvent.dataTransfer.files[i],$("#summernote")[0]);
     }
     e.preventDefault();
 });
+*/
 
 /**
 * 이미지 파일 업로드
@@ -212,17 +276,16 @@ $('#seq_elet').on('change', function(){
     $('#no_height').val(height);
 });
 
-//개소명 선택시
+//상태 변경시
 $('#ty_stat').on('change', function(){
     var data = $(this).val();
     if(data!="신청"){
         $('.div-bigo').show();
     }else{
-        $('.div-bigo').show();
+        $('.div-bigo').hide();
     }
 });
 
-/*
 $('#frm').on('submit', function(){
     var ty_stat = $('#ty_stat').val();
     msg=ty_stat+" 하시겠습니까?";
@@ -232,6 +295,5 @@ $('#frm').on('submit', function(){
         return false;
     }
 });
-*/
 </script>
 {% endblock %}

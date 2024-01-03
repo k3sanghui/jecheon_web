@@ -1,4 +1,4 @@
-from flask import Blueprint, url_for, session
+from flask import Blueprint, url_for, session, g
 from werkzeug.utils import redirect
 
 bp = Blueprint('main', __name__, url_prefix='/')
@@ -13,4 +13,4 @@ def index():
             return redirect(url_for('adm.index'))
     else:
         session['no_level'] = 1
-        return redirect(url_for('auth.signup'))
+        return redirect(url_for('auth.login'))

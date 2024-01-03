@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="find-cont" class="container">
+    <h5 class="my-3 border-bottom pb-2 menu-title">아이디 찾기</h5>
+    <div class="frm-view">
+        {% if data %}
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1"><span class="frm-label">아이디</span></div>
+            <div class="col-6 col-md-4">{{ data.id_user }}</div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1"><span class="frm-label">가입일자</span></div>
+            <div class="col-6 col-md-4">{{ data.dt_create }}</div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-login" style="width:10rem;">로그인</a>
+            <a href="{{ url_for('auth.pwdFind') }}" class="btn btn-secondary" style="width:10rem;">비밀번호 찾기</a>
+        </div>
+        {% else %}
+        <div class="mb-3 row frm-row">
+            <div class="text-center">등록된 회원정보가 없습니다.</div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-next" style="width:10rem;">메인화면</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

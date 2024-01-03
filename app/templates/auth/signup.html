@@ -1,56 +1,86 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container">
-    <h5 class="my-3 border-bottom pb-2">회원가입</h5>
-    <form method="post" onsubmit="return fn_submit(this);">
+<div id="singup-cont" class="container">
+    <h5 class="my-3 border-bottom pb-2 menu-title">회원가입</h5>
+    <form method="post" onsubmit="return fn_submit(this);" class="frm-view">
         {{ form.csrf_token }}
         {% include "form_errors.html" %}
         <input type="hidden" name="over_lap" id="over_lap" value="N">
         <input type="hidden" name="yn_emailcertify" id="yn_emailcertify" value="N">
         <input type="hidden" name="seq_certify" id="seq_certify" value="">
-        <div class="mb-3">
-            <label for="id_user">아이디</label>
-            <div class="d-flex">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="id_user" class="frm-label">아이디<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
                 <input type="text" class="form-control" name="id_user" id="id_user"
-                       value="{{ form.id_user.data or '' }}" style="width: 25rem;">
-                <a href="javascript:void(0)" class="btn_over_lap btn btn-secondary" data-uri="{{ url_for('auth.over_lap', ) }}" style="margin-left:1rem">중복체크</a>
+                       value="{{ form.id_user.data or '' }}" autocomplete="off">
+            </div>
+            <div class="col-6 col-md-4">
+                <a href="javascript:void(0)" class="btn_over_lap btn btn-secondary btn-width10" data-uri="{{ url_for('auth.over_lap', ) }}">중복체크</a>
             </div>
         </div>
-        <div class="mb-3">
-            <label for="ds_password">비밀번호</label>
-            <input type="password" class="form-control" name="ds_password" id="ds_password"
-                   value="{{ form.ds_password.data or '' }}">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_password" class="frm-label">비밀번호<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="password" class="form-control" name="ds_password" id="ds_password"
+                   value="{{ form.ds_password.data or '' }}" >
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="ds_password_check">비밀번호 확인</label>
-            <input type="password" class="form-control" name="ds_password_check" id="ds_password_check"
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_password_check" class="frm-label">비밀번호 확인<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="password" class="form-control" name="ds_password_check" id="ds_password_check"
                    value="{{ form.ds_password_check.data or '' }}">
-        </div>
-         <div class="mb-3">
-            <label for="ds_name">이름</label>
-            <input type="text" class="form-control" name="ds_name" id="ds_name"
-                   value="{{ form.ds_name.data or '' }}">
-        </div>
-        <div class="mb-3">
-            <label for="ds_tel">연락처</label>
-            <input type="text" class="form-control" name="ds_tel" id="ds_tel"
-                   value="{{ form.ds_tel.data or '' }}" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');">
-        </div>
-        <div class="mb-3">
-            <label for="ds_email">이메일</label>
-            <div class="d-flex">
-                <input type="text" class="form-control" name="ds_email" id="ds_email"
-                       value="{{ form.ds_email.data or '' }}" style="width: 25rem;">
-                <a href="javascript:void(0)" onclick="" class="btn_email_auth btn btn-secondary" style="margin-left:1rem">인증번호 받기</a>
             </div>
         </div>
-        <div class="d-codenum mb-3" style="display:none;">
-            <label for="no_codenum">인증번호</label>
-            <input type="text" class="form-control" name="no_codenum" id="no_codenum"
-                       value="" style="width: 25rem;">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_name" class="frm-label">이름<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_name" id="ds_name"
+                   value="{{ form.ds_name.data or '' }}" autocomplete="off">
+            </div>
         </div>
-        <a href="" class="btn btn-secondary">취소</a>
-        <button type="submit" id="btn_submit" accesskey="s" class="btn btn-primary">저장</button>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_tel" class="frm-label">연락처<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_tel" id="ds_tel"
+                   value="{{ form.ds_tel.data or '' }}" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_email" class="frm-label">이메일<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_email" id="ds_email"
+                       value="{{ form.ds_email.data or '' }}" autocomplete="off">
+            </div>
+            <div class="col-6 col-md-4">
+                <a href="javascript:void(0)" onclick="" class="btn_email_auth btn btn-secondary btn-width10">인증번호 받기</a>
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="no_codenum" class="frm-label">인증번호<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="no_codenum" id="no_codenum"
+                       value="" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-width10">취소</a>
+            <button type="submit" id="btn_submit" accesskey="s" class="btn btn-primary btn-width10">저장</button>
+        </div>
     </form>
 </div>
 <script type='text/javascript'>
@@ -87,7 +117,6 @@ Array.from(btn_email_auth).forEach(function(element) {
             alert("아이디는 필수 입력입니다.");
             return false;
         }
-        $('.d-codenum').show();
         $.ajax({
             type: "POST",
             url: "/auth/sendOtp/",

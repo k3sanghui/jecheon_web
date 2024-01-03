@@ -1,42 +1,71 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container">
-    <h5 class="my-3 border-bottom pb-2">전광판관리</h5>
-    <form method="post" class="my-3">
+    <h5 class="my-3 border-bottom pb-2 menu-title">전광판관리</h5>
+    <form method="post" class="my-3 frm-view">
+        {% if form.seq_elet.data %}
+        <input type="hidden" name="seq_elet" id="seq_elet" value="{{ form.seq_elet.data }}">
+        {% endif %}
         {{ form.csrf_token }}
         {% include "form_errors.html" %}
-        <div class="mb-3">
-            <label for="ty_gubun">구분</label>
-            <input type="text" class="form-control" name="ty_gubun" id="ty_gubun" value="{{ form.ty_gubun.data or '' }}">
-        </div>
-        <div class="mb-3">
-            <label for="id_settop">셋탑ID</label>
-            <input type="text" class="form-control" name="id_settop" id="id_settop" value="{{ form.id_settop.data or '' }}">
-        </div>
-        <div class="mb-3">
-            <label for="ds_title">개소명</label>
-            <input type="text" class="form-control" name="ds_title" id="ds_title" value="{{ form.ds_title.data or '' }}">
-        </div>
-        <div class="mb-3">
-            <label for="ds_addr">설치장소</label>
-            <input type="text" class="form-control" name="ds_addr" id="ds_addr" value="{{ form.ds_addr.data or '' }}">
-        </div>
-        <div class="mb-3 d-flex">
-            <div style="margin-right:5rem;">
-                <label for="no_width">가로(px)</label>
-                <input type="" class="form-control" name="no_width" id="no_width" value="{{ form.no_width.data or '' }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ty_gubun" class="frm-label">구분<span class="required"> *</span></label>
             </div>
-            <div>
-                <label for="no_height">세로(px)</label>
-                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ form.no_height.data or '' }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ty_gubun" id="ty_gubun" value="{{ form.ty_gubun.data or '' }}" autocomplete="off">
             </div>
         </div>
-        <div class="mb-3">
-            <label for="ds_bigo">비고</label>
-            <input type="text" class="form-control" name="ds_bigo" id="ds_bigo" value="{{ form.ds_bigo.data or '' }}">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="id_settop" class="frm-label">셋탑ID<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="id_settop" id="id_settop" value="{{ form.id_settop.data or '' }}" autocomplete="off">
+            </div>
         </div>
-        <a href="{{ url_for('eld._list') }}" class="btn btn-secondary">취소</a>
-        <button type="submit" class="btn btn-primary">저장</button>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_title" class="frm-label">개소명<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_title" id="ds_title" value="{{ form.ds_title.data or '' }}" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_addr" class="frm-label">설치장소<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control width90p" name="ds_addr" id="ds_addr" value="{{ form.ds_addr.data or '' }}" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="no_width" class="frm-label">가로(px)<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-1">
+                <input type="" class="form-control" name="no_width" id="no_width" value="{{ form.no_width.data or '' }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" autocomplete="off">
+            </div>
+            <div class="col-md-1">
+                <label for="no_height" class="frm-label">세로(px)<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-1">
+                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ form.no_height.data or '' }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_bigo" class="frm-label">비고</label>
+            </div>
+            <div class="col-11 col-md-11">
+                <input type="text" class="form-control width90p" name="ds_bigo" id="ds_bigo" value="{{ form.ds_bigo.data or '' }}" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('eld._list') }}" class="btn btn-secondary">취소</a>
+            <button type="submit" class="btn btn-primary">저장</button>
+        </div>
     </form>
 </div>
 <script type='text/javascript'>

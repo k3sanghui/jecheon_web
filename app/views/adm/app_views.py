@@ -10,24 +10,21 @@
 import os
 import shutil
 
-import body as body
 import requests
 from bs4 import BeautifulSoup
 from html2image import Html2Image
-from flask import Blueprint, url_for, render_template, flash, request, session, g, jsonify, Flask, send_from_directory
+from flask import Blueprint, url_for, render_template, request, g, jsonify, send_from_directory
 from flask_paginate import Pagination, get_page_args
 from werkzeug.utils import redirect, secure_filename
-from app.forms.app_forms import AdmAppForm
-from app.lib.common import file_info, allowed_file
+from app.forms.app_forms import AdmAppForm, AdmAppInsForm
+from app.lib.common import file_info
 from app.lib.db_function import get_elet_select, get_title_select, sql_query, sql_fetch, sql_fetch_array
 from app.module import dbModule
 from app.lib import common
 from datetime import datetime
 from app.views.auth_views import login_required
 from config import ROOT_PATH, APP_EXT_URL, UPLOAD_FOLDER, BASE_DIR
-from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-global tbl, now
 appl_tbl = "tapp_appl010"
 elet_tbl = "tapp_elet010"
 file_tbl = "tapp_file010"
@@ -39,26 +36,50 @@ bp = Blueprint('app', __name__, url_prefix='/adm/app')
 @bp.route('/list/', methods=('GET', 'POST'))
 @login_required
 def _list():
-    sql_search = None
-    s_ty_gubun = request.args.get('s_ty_gubun')
+    search_list = {}
+    now_day = now.strftime("%Y-%m-%d")
+    sql_search = ""
+    s_app_title = request.args.get('s_app_title')
+    s_stat = request.args.get('s_stat')
+    s_start = request.args.get('s_start')
+    s_end = request.args.get('s_end')
     s_gubun = request.args.get('s_gubun')
     stx = request.args.get('stx')
-    if s_ty_gubun is not None and s_ty_gubun != "":
-        sql_search += f" and ty_gubun = '{s_ty_gubun}'"
+    chk = request.args.get('chk')
+    
+    # 대시보드 더보기 누를시
+    if chk == "now_app":
+        s_start = now_day
+        s_end = now_day
+        s_stat = '신청'
+    elif chk == "now_info":
+        sql_search += f"and to_char(ta.dt_start, 'YYYY-MM-DD') <= '{now_day}' "
+        sql_search += f"and to_char(ta.dt_end, 'YYYY-MM-DD') >= '{now_day}' "
+
+    if s_app_title is not None and s_app_title != "":
+        sql_search += f" and ta.ds_app_title = '{s_app_title}'"
+    if s_stat is not None and s_stat != "":
+        sql_search += f" and ta.ty_stat = '{s_stat}'"
+    else:
+        sql_search += " and ta.ty_stat<>'임시저장'"
+
+    if s_start is not None and s_start != "":
+        sql_search += f" and to_char(ta.dt_create, 'YYYY-MM-DD') >= '{s_start}' "
+    if s_end is not None and s_end != "":
+        sql_search += f" and to_char(ta.dt_create, 'YYYY-MM-DD') <= '{s_end}' "
+
     if stx is not None and stx != "":
         if s_gubun is not None and s_gubun != "":
-            sql_search += f" and {s_gubun}' like %'{stx}'%"
+            sql_search += f" and ta.{s_gubun} like '%%{stx}%%'"
         else:
-            sql_search += f" and (ds_app_name like '%%{stx}%%' or ds_text like '%%{stx}%%' )"
+            sql_search += f" and (ta.ds_app_name like '%%{stx}%%' or ta.ds_text like '%%{stx}%%' )"
 
     per_page = 10
     page, _, offset = get_page_args(per_page=per_page)
-    total_sql = "select count(*) as total from " + appl_tbl + " where 1=1 and yn_removed = 'N' and ty_stat<>'임시저장'"
-    sql = "SELECT * FROM " + appl_tbl + " where 1=1 and yn_removed = 'N' and ty_stat<>'임시저장' order by seq_app desc limit %s offset %s;"
-    if sql_search is not None:
-        total_sql += sql_search
-        sql += sql_search
+    total_sql = f"select count(*) as total from {appl_tbl} ta where 1=1 and ta.yn_removed = 'N' {sql_search} "
     total = sql_fetch(total_sql)
+
+    sql = f"SELECT * FROM {appl_tbl} ta where 1=1 and ta.yn_removed = 'N' {sql_search} order by ta.seq_app desc limit %s offset %s;"
     sql_common = (per_page, offset)
     app_list = sql_fetch_array(sql, sql_common)
 
@@ -72,8 +93,15 @@ def _list():
         next_label="다음",  # 후 페이지로 가는 링크의 버튼 모양을 알려주고,
         format_total=True,  # 총 몇 개의 포스트 중 몇 개의 포스트를 보여주고있는지 시각화,
     )
-    return render_template('adm/app/app_list.html', app_list=app_list, pagination=pagination, search=True, bs_version=5,
-                           title_list=title_list)
+
+    search_list['s_app_title'] = request.args.get('s_app_title')
+    search_list['s_stat'] = s_stat
+    search_list['s_start'] = s_start
+    search_list['s_end'] = s_end
+    search_list['s_gubun'] = request.args.get('s_gubun')
+    search_list['stx'] = request.args.get('stx')
+    return render_template('adm/app/app_list.html', app_list=app_list, total=total['total'], pagination=pagination, search=True, bs_version=5,
+                           title_list=title_list, search_list=search_list)
 
 
 @bp.route('/view/<int:seq_app>/')
@@ -105,9 +133,8 @@ def view_file(filename):
 def ins():
     error = None
     ip = common.get_ip()
-    form = AdmAppForm()
+    form = AdmAppInsForm()
     if request.method == 'POST' and form.validate_on_submit():
-        db_class = dbModule.Database()
         seq_user = form.seq_user.data
         seq_elet = form.seq_elet.data
         ds_app_name = form.ds_app_name.data
@@ -117,27 +144,20 @@ def ins():
         dt_end = form.dt_end.data
         ds_text = form.ds_text.data
         ds_reason = form.ds_reason.data
-        temp_chk = request.form['temp_chk']
-        if temp_chk == 'Y':
-            ty_stat = "임시저장"
-        else:
-            ty_stat = "신청"
+        ty_stat = "신청"
         id_create = g.user['id_user']
         sql = "INSERT INTO " + appl_tbl + " " \
                                           "(seq_user, seq_elet, ds_app_name, ds_app_title, ds_app_tel, dt_start, dt_end, ty_stat, ds_text, ds_reason, id_create, dt_create, ip_create) " \
                                           "VALUES " \
                                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING seq_app;"
         sql_common = (
-            seq_user, seq_elet, ds_app_name, ds_app_title, ds_app_tel, dt_start, dt_end, ty_stat, ds_text, ds_reason,
-            id_create, now, ip)
-        seq_noti = db_class.execute(sql, sql_common)
-        db_class.commit()
-        db_class.close()
+        seq_user, seq_elet, ds_app_name, ds_app_title, ds_app_tel, dt_start, dt_end, ty_stat, ds_text, ds_reason,
+        id_create, now, ip)
+        seq_noti = sql_query(sql, sql_common)
         if seq_noti:
-            return redirect(url_for('user_app._list'))
-    # flash(error)
+            return redirect(url_for('app._list'))
     title_list = get_title_select()
-    return render_template('adm/app/app_form.html', form=form, title_list=title_list)
+    return render_template('adm/app/app_form_ins.html', form=form, title_list=title_list)
 
 
 @bp.route('/mod/<int:seq_app>', methods=('GET', 'POST'))
@@ -207,25 +227,17 @@ def mod(seq_app):
     return render_template('adm/app/app_form.html', form=form)
 
 
-@bp.route('/del/<int:seq_elet>')
+@bp.route('/del/<int:seq_app>')
 @login_required
-def _del(seq_elet):
+def _del(seq_app):
     ip = common.get_ip()
     sql = "update " + appl_tbl + " set yn_removed = 'Y', " \
                                  " id_update = %s, " \
                                  " dt_update = %s, " \
                                  " ip_update = %s " \
-                                 " where seq_elet = %s RETURNING seq_elet;"
-    sql_common = (g.user['id_user'], now, ip, seq_elet,)
+                                 " where seq_app = %s RETURNING seq_app;"
+    sql_common = (g.user['id_user'], now, ip, seq_app,)
     data = sql_query(sql, sql_common)
-    '''
-    question = Question.query.get_or_404(question_id)
-    if g.user != question.user:
-        flash('삭제권한이 없습니다')
-        return redirect(url_for('question.detail', question_id=question_id))
-    db.session.delete(question)
-    db.session.commit()
-    '''
     return redirect(url_for('app._list'))
 
 

@@ -3,4 +3,61 @@
     src: url('/static/css/font/NotoSansKr/NotoSansKR-Light.otf') format('opentype')
 }
 
+.navbar-collapse{flex-grow:0;}
+nav.border-bottom{border-bottom:1px solid #70BD43 !important}
+.col-6 {width: 100%; margin-bottom: 1rem;}
+.col-3 {width: 50%;}
+.search-cont .search-txt {min-width: 100% !important;}
+.search-cont .search-date{width: auto;}
+.col-md-2 {width: 100%;}
+.col-md-10 {width: 100%;}
+
+/*반응형 관련*/
+@media(min-width: 576px){
+    .navbar{max-width:540px; margin:0 auto;}
+    .search-cont .form-select{width:100%;}
+    .search-cont .search-txt{min-width: 100% !important;}
+    .search-cont .search-date{width: 100%;}
+    .search-cont .btn{margin-top:4px;}
+}
+@media(min-width: 768px){
+    .navbar{max-width:720px; margin:0 auto;}
+    .search-cont .form-select{width:auto;}
+    .search-cont .search-txt{min-width: 15.3rem !important;}
+    .search-cont .search-date{width:10rem;}
+    .search-cont .btn{margin-top:-4px;}
+    .col-3 {width: 30%;}
+    .col-md-4 {width: 33.33333333%;}
+    .col-md-2 {width: 30%;}
+    .col-md-10 {width: 83.33333333%;}
+}
+@media(min-width: 992px){
+    .navbar{max-width:960px; margin:0 auto;}
+    .search-cont .form-select{width:auto;}
+    .search-cont .search-txt{min-width: 15.3rem !important;}
+    .search-cont .search-date{width:10rem;}
+    .search-cont .btn{margin-top:-4px;}
+    .col-md-2 {width: 30%;}
+    .col-md-10 {width: 83.33333333%;}
+}
+@media(min-width: 1200px){
+    .navbar{max-width:1140px; margin:0 auto;}
+    .search-cont .form-select{width:auto;}
+    .search-cont .search-txt{min-width: 15.3rem !important;}
+    .search-cont .search-date{width:10rem;}
+    .search-cont .btn{margin-top:-4px;}
+    .col-md-2{width: 16.66666667%;}
+    .col-md-10 {width: 83.33333333%;}
+}
+@media(min-width: 1400px){
+    .navbar{max-width:1320px; margin:0 auto;}
+    .search-cont .form-select{width:auto;}
+    .search-cont .search-txt{min-width: 15.3rem !important;}
+    .search-cont .search-date{width:10rem;}
+    .search-cont .btn{margin-top:-4px;}
+    .col-3 {width: 8.33333333%;}
+    .col-md-2{width: 16.66666667%;}
+    .col-md-10 {width: 83.33333333%;}
+}
+
 .pagination {justify-content: center;}

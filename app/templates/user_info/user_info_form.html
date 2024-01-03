@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="userinfo-cont" class="container">
+    <h5 class="my-3 border-bottom pb-2 menu-title">회원정보 수정</h5>
+    <a href="javascript:void(0)" data-uri="{{ url_for('user_info.withraw', seq_user=form.seq_user.data) }}" class="withraw btn btn-danger" style="position: relative; margin-top: -60px; float: right;">회원탈퇴</a>
+    <form method="post" class="frm-view" onsubmit="return fn_submit(this);">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <input type="hidden" name="over_lap" id="over_lap" value="N">
+        <input type="hidden" name="yn_emailcertify" id="yn_emailcertify" value="N">
+        <input type="hidden" name="seq_certify" id="seq_certify" value="">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="id_user" class="frm-label">아이디</label>
+            </div>
+            <div class="col-6 col-md-2">
+                <input type="text" class="form-control" name="id_user" id="id_user"
+                       value="{{ form.id_user.data or '' }}" readonly>
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_name" class="frm-label">이름</label>
+            </div>
+            <div class="col-6 col-md-2">
+                <input type="text" class="form-control" name="ds_name" id="ds_name"
+                   value="{{ form.ds_name.data or '' }}" autocomplete="off" onkeyup="characterCheck(this)" onkeydown="characterCheck(this)">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_tel" class="frm-label">연락처</label>
+            </div>
+            <div class="col-6 col-md-2">
+                <input type="text" class="form-control" name="ds_tel" id="ds_tel"
+                   value="{{ form.ds_tel.data or '' }}" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_email" class="frm-label">이메일</label>
+            </div>
+            <div class="col-6 col-md-2">
+                <input type="text" class="form-control" name="ds_email" id="ds_email" value="{{ form.ds_email.data or '' }}" autocomplete="off">
+            </div>
+            <div class="col-6 col-md-2">
+                <a href="javascript:void(0)" onclick="" class="btn_email_auth btn btn-secondary">인증번호 받기</a>
+            </div>
+        </div>
+        <div class="mb-3 row frm-row d-codenum" style="display:none;">
+            <div class="col-md-1">
+                <label for="no_codenum" class="frm-label">인증번호</label>
+            </div>
+            <div class="col-6 col-md-2">
+                <input type="text" class="form-control" name="no_codenum" id="no_codenum"value="" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');" autocomplete="off" >
+            </div>
+        </div>
+        <h5 class="my-3 border-bottom pb-2" style="margin-top:3rem!important; font-weight:bold;">비밀번호 수정(변경할 비밀번호 입력)</h5>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_password" class="frm-label">비밀번호</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="password" class="form-control" name="ds_password" id="ds_password"
+                       value="">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_password_check" class="frm-label">비밀번호 확인</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="password" class="form-control" name="ds_password_check" id="ds_password_check"
+                       value="">
+            </div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="" class="btn btn-secondary">취소</a>
+            <button type="submit" id="btn_submit" accesskey="s" class="btn btn-primary">저장</button>
+        </div>
+    </form>
+</div>
+<script type='text/javascript'>
+//회원탈퇴
+const withraw_elements = document.getElementsByClassName("withraw");
+Array.from(withraw_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 탈퇴를 하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
+
+//이메일 본인인증
+const btn_email_auth = document.getElementsByClassName("btn_email_auth");
+Array.from(btn_email_auth).forEach(function(element) {
+    element.addEventListener('click', function() {
+        var ds_email = document.getElementById('ds_email').value
+        var id_user = document.getElementById('id_user').value
+        if (!id_user){
+            alert("아이디는 필수 입력입니다.");
+            return false;
+        }
+        $.ajax({
+            type: "POST",
+            url: "/auth/sendOtp/",
+            data: {id_user:id_user,ds_email:ds_email},
+            success: function(res){
+                if(res.code==200){
+                    document.getElementById('yn_emailcertify').value = 'Y';
+                    document.getElementById('seq_certify').value = res.seq_certify;
+                    $('.d-codenum').show();
+                }else{
+                    document.getElementById('yn_emailcertify').value = 'N';
+                    document.getElementById('ds_email').focus();
+                }
+                alert(res.msg);
+            }
+        })
+    });
+});
+
+function fn_submit(f){
+    if (f.ds_name.value.length < 1) {
+        alert("이름은 필수 입력 입니다.");
+        f.ds_name.focus();
+        return false;
+    }
+
+    if (f.ds_tel.value.length < 1) {
+        alert("연락처는 필수 입력 입니다.");
+        f.ds_tel.focus();
+        return false;
+    }else{
+        tel_chk = phoneNumberCheck(f.ds_tel.value.replaceAll("-",""));
+        if(!tel_chk){
+            alert("연락처 형식이 올바르지 않습니다.");
+            f.ds_tel.focus();
+            return false;
+        }
+    }
+
+    if (f.ds_email.value.length < 1) {
+        alert("이메일은 필수 입력 입니다.");
+        f.ds_email.focus();
+        return false;
+    }else{
+        email_chk = emailCheck(f.ds_email.value);
+        if(!email_chk){
+            alert("유효하지 않은 이메일 주소입니다.");
+            f.ds_email.focus();
+            return false;
+        }
+    }
+
+    var ori_email = "{{ form.ds_email.data }}";
+    if (ori_email != f.ds_email.value){
+        if (f.yn_emailcertify.value!="Y"){
+            alert("이메일 인증을 진행해 주세요.");
+            return false;
+        }
+    }
+
+    if(f.ds_password.value.length > 0){
+        if(f.ds_password.value.length < 8){
+            alert('비밀번호를 8글자 이상 입력하세요.');
+            f.ds_password.focus();
+            return false;
+        }
+
+       if(f.ds_password.value != f.ds_password_check.value){
+            alert("비밀번호가 같지 않습니다.");
+            f.ds_password_check.focus();
+            return false;
+       }
+    }
+    document.getElementById("btn_submit").disabled = "disabled";
+    return true;
+}
+</script>
+{% endblock %}

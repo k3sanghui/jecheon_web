@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2 menu-title">비밀번호 확인</h5>
+    <form id="frm" method="post" class="my-3 frm-view" method="post" action="{{ url_for('user_info.info') }}">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_password" class="frm-label">현재 비밀번호</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="password" class="form-control" name="ds_password" id="ds_password" value="">
+            </div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="" class="btn btn-secondary">취소</a>
+            <button type="submit" class="btn btn-primary">확인</button>
+        </div>
+    </form>
+</div>
+<script type='text/javascript'>
+
+</script>
+{% endblock %}

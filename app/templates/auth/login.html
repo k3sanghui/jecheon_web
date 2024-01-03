@@ -1,21 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container">
-    <h5 class="my-3 border-bottom pb-2">로그인</h5>
+<div id="login-cont" class="container">
+    <div class="login-title">
+        <img src="{{ url_for('static', filename='img/jh_logo.png') }}">
+        <h5 class="my-3 border-bottom pb-2">제천시 대시민서비스</h5>
+    </div>
     <form method="post">
         {{ form.csrf_token }}
         {% include "form_errors.html" %}
         <div class="mb-3">
-            <label for="id_user">아이디</label>
+            <label for="id_user" class="frm-label">아이디</label>
             <input type="text" class="form-control" name="id_user" id="id_user"
-                   value="{{ form.id_user.data or '' }}">
+                   value="{{ form.id_user.data or '' }}" autocomplete="off">
         </div>
         <div class="mb-3">
-            <label for="ds_password">비밀번호</label>
+            <label for="ds_password" class="frm-label">비밀번호</label>
             <input type="password" class="form-control" name="ds_password" id="ds_password"
                    value="{{ form.ds_password.data or '' }}">
         </div>
-        <button type="submit" class="btn btn-primary">로그인</button>
+        <div class="mb-3 btn-center">
+            <button type="submit" class="btn btn-primary">로그인</button>
+        </div>
+        <div class="mb-3 btn-center mem-info">
+            <a href="{{ url_for('auth.idFind') }}" >아이디 찾기</a>
+            <a href="{{ url_for('auth.pwdFind') }}" class="mem-search">비밀번호 찾기</a>
+            <a href="{{ url_for('auth.signup') }}" class="mem-search">회원가입</a>
+        </div>
     </form>
 </div>
 {% endblock %}

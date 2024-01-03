@@ -1,54 +1,69 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container my-3">
-    <div class="row my-3">
-        <div class="col-6">
-            <div class="input-group">
-
-                <input type="text" id="search_kw" class="form-control" value="{{ kw or '' }}">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" id="btn_search">조회</button>
-                </div>
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2 menu-title">신청내역</h5>
+    <div class="search-cont">
+        <form id="searchForm" method="get" action="{{ url_for('user_app._list') }}">
+            <input type="hidden" id="page" name="page" value="{{ page }}">
+            <div class="search-row">
+                <label for="s_app_title">개소명</label>
+                <select name="s_app_title" id="s_app_title" class="form-select m-right5px" title="개소명">
+                    <option value="">전체</option>
+                    {% if title_list %}
+                    {% for title in title_list %}
+                    <option value="{{title.ds_title}}" {% if title.ds_title==search_list["s_app_title"] %}selected{% endif %}>{{title.ds_title}}</option>
+                    {% endfor %}
+                    {% endif %}
+                </select>
+                <label for="s_stat">신청상태</label>
+                <select name="s_stat" id="s_stat" class="form-select" title="신청상태">
+                    <option value="">전체</option>
+                    <option value="신청" {% if search_list["s_stat"]=="신청" %}selected{% endif %}>신청</option>
+                    <option value="승인" {% if search_list["s_stat"]=="승인" %}selected{% endif %}>승인</option>
+                    <option value="미승인" {% if search_list["s_stat"]=="미승인" %}selected{% endif %}>미승인</option>
+                    <option value="보류" {% if search_list["s_stat"]=="보류" %}selected{% endif %}>보류</option>
+                </select>
+                <button class="btn btn-outline-secondary" type="button" id="btn_search">조회</button>
+                <button class="btn btn-outline-secondary" type="button" id="btn_reset">초기화</button>
             </div>
-        </div>
-        <div class="col-6">
-            <a href="{{ url_for('user_app.ins') }}" class="btn btn-primary f-right">등록</a>
-        </div>
+        </form>
     </div>
-    <table class="table">
+    <span class="total">전체&nbsp;<strong>{{total}}</strong>&nbsp;건</span>
+    <a href="{{ url_for('user_app.ins') }}" class="btn btn-primary f-right btn-ins">등록</a>
+    <table class="responsive-table">
         <thead>
-        <tr class="text-center table-dark list-tbl">
-            <th class="th-num">번호</th>
-            <th>개소명</th>
-            <th>신청일자</th>
-            <th>신청문구</th>
-            <th>출력시작</th>
-            <th>출력종료</th>
-            <th>신청상태</th>
-            <th>상태변경일자</th>
+        <tr>
+            <th scope="col">번호</th>
+            <th scope="col">개소명</th>
+            <th scope="col">신청일자</th>
+            <th scope="col">신청문구</th>
+            <th scope="col">출력시작</th>
+            <th scope="col">출력종료</th>
+            <th scope="col">신청상태</th>
+            <th scope="col">상태변경일자</th>
         </tr>
         </thead>
         <tbody>
         {% if app_list %}
         {% for app in app_list %}
-        <tr class="text-center">
-            <td>{{ pagination.total - ((pagination.page-1) * pagination.per_page) - loop.index0 }}</td>
+        <tr>
+            <td class="th-num">{{ pagination.total - ((pagination.page-1) * pagination.per_page) - loop.index0 }}</td>
             {% if app.ty_stat=='임시저장' %}
-            <td><a href="{{ url_for('user_app.mod', seq_app=app.seq_app) }}">{{app.ds_app_title}}</a></td>
+            <th scope="row"><a href="{{ url_for('user_app.mod', seq_app=app.seq_app) }}">{{app.ds_app_title}}</a></th>
             {% else %}
-            <td><a href="{{ url_for('user_app.view', seq_app=app.seq_app) }}">{{app.ds_app_title}}</a></td>
+            <th scope="row"><a href="{{ url_for('user_app.view', seq_app=app.seq_app) }}">{{app.ds_app_title}}</a></th>
             {% endif %}
-            <td>{{app.dt_create|ymdhm}}</td>
-            <td>{{app.ds_text}}</td>
-            <td>{{app.dt_start}}</td>
-            <td>{{app.dt_end}}</td>
-            <td>{{app.ty_stat}}</td>
-            <td>{% if app.dt_statdate %}{{app.dt_statdate|ymdhm}}{% endif %}</td>
+            <td data-title="신청일자">{{app.dt_create|ymdhm}}</td>
+            <td data-title="신청문구">{{app.ds_text}}</td>
+            <td data-title="출력시작">{{app.dt_start}}</td>
+            <td data-title="출력종료">{{app.dt_end}}</td>
+            <td data-title="신청상태">{{app.ty_stat}}</td>
+            <td data-title="상태변경일자">{% if app.dt_statdate %}{{app.dt_statdate|ymdhm}}{% endif %}</td>
         </tr>
         {% endfor %}
         {% else %}
         <tr>
-            <td colspan="8" class="txt-center">데이터가 없습니다.</td>
+            <td colspan="8" class="txt-center txt-bold">데이터가 없습니다.</td>
         </tr>
         {% endif %}
         </tbody>
@@ -57,13 +72,27 @@
     {{ pagination.links }}
     <!-- 페이징처리 끝 -->
 </div>
-<form id="searchForm" method="get" action="{{ url_for('app._list') }}">
-    <input type="hidden" id="kw" name="kw" value="{{ kw or '' }}">
-    <input type="hidden" id="page" name="page" value="{{ page }}">
-</form>
 {% endblock %}
 {% block script %}
 <script type='text/javascript'>
+$(function() {
+    $('#s_date').datepicker({
+        format: "yyyy-mm-dd",	//데이터 포맷 형식(yyyy : 년 mm : 월 dd : 일 )
+        endDate: '+1',	//달력에서 선택 할 수 있는 가장 느린 날짜. 이후로 선택 불가 ( d : 일 m : 달 y : 년 w : 주)
+        autoclose : true,	//사용자가 날짜를 클릭하면 자동 캘린더가 닫히는 옵션
+        templates : {
+            leftArrow: '&laquo;',
+            rightArrow: '&raquo;'
+        }, //다음달 이전달로 넘어가는 화살표 모양 커스텀 마이징
+        showWeekDays : true ,// 위에 요일 보여주는 옵션 기본값 : true
+        todayHighlight : true ,	//오늘 날짜에 하이라이팅 기능 기본값 :false
+        toggleActive : true,	//이미 선택된 날짜 선택하면 기본값 : false인경우 그대로 유지 true인 경우 날짜 삭제
+        weekStart : 0 ,//달력 시작 요일 선택하는 것 기본값은 0인 일요일
+        language : "ko"	//달력의 언어 선택, 그에 맞는 js로 교체해줘야한다.
+    });//datepicker end
+});//ready end
+
+
 const page_elements = document.getElementsByClassName("page-link");
 Array.from(page_elements).forEach(function(element) {
     element.addEventListener('click', function() {
@@ -71,5 +100,23 @@ Array.from(page_elements).forEach(function(element) {
         document.getElementById('searchForm').submit();
     });
 });
+
+const btn_search = document.getElementById("btn_search");
+btn_search.addEventListener('click', function() {
+    document.getElementById('page').value = 1;  // 검색버튼을 클릭할 경우 1페이지부터 조회한다.
+    document.getElementById('searchForm').submit();
+});
+
+const btn_reset = document.getElementById("btn_reset");
+btn_reset.addEventListener('click', function() {
+    document.getElementById('s_app_title').value = "";
+    document.getElementById('s_stat').value = "";
+    document.getElementById('s_date').value = "";
+    document.getElementById('s_gubun').value = "";
+    document.getElementById('stx').value = "";
+    document.getElementById('page').value = 1;  // 검색버튼을 클릭할 경우 1페이지부터 조회한다.
+    document.getElementById('searchForm').submit();
+});
+
 </script>
 {% endblock %}

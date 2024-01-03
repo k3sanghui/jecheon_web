@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Length, EqualTo, Email
 
 # 전광판 관리 등록
 class EldForm(FlaskForm):
-    seq_elet = StringField('번호')
+    seq_elet = IntegerField('번호')
     id_settop = StringField('셋탑ID', validators=[DataRequired("셋탑ID는 필수 입력입니다."), Length(min=3, max=25)])
     ty_gubun = StringField('구분', validators=[DataRequired("구분은 필수 입력입니다."), Length(min=3, max=25)])
     ds_title = StringField('개소명', validators=[DataRequired("개소명은 필수 입력입니다."), Length(min=3, max=25)])

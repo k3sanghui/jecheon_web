@@ -1,69 +1,67 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container my-3">
-    <div class="row my-3">
-        <div class="col-10">
-            <form id="searchForm" method="get" action="{{ url_for('eld._list') }}">
-                <input type="hidden" id="page" name="page" value="{{ page }}">
-                <div class="input-group">
-                    <label for="s_ty_gubun" class="m-top5px">전광판구분</label>
-                    <select name="s_ty_gubun" id="s_ty_gubun" class="form-control m-right5px" style="flex:0 7rem;" title="전광판구분">
-                        <option value="">전체</option>
-                        {% if ty_gubun_list %}
-                        {% for s_gubun in ty_gubun_list %}
-                        <option value="{{s_gubun.ty_gubun}}" {% if s_gubun.ty_gubun==s_ty_gubun %}selected{% endif %}>{{s_gubun.ty_gubun}}</option>
-                        {% endfor %}
-                        {% endif %}
-                    </select>
-                    <label for="s_gubun" class="m-top5px">검색구분</label>
-                    <select name="s_gubun" id="s_gubun" class="form-control" title="검색구분" style="flex:0 7rem;">
-                        <option value="">전체</option>
-                        <option value="id_settop" {% if s_gubun=="s_gubun" %}selected{% endif %}>셋탑ID</option>
-                        <option value="ds_title" {% if s_gubun=="ds_title" %}selected{% endif %}>개소명</option>
-                        <option value="ds_addr" {% if s_gubun=="ds_addr" %}selected{% endif %}>설치장소</option>
-                    </select>
-                    <input type="text" name="stx" id="stx" class="form-control" value="{{ stx or '' }}" size="100">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="btn_search">조회</button>
-                        <button class="btn btn-outline-secondary" type="button" id="btn_reset">초기화</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="col-2">
-            <a href="{{ url_for('eld.ins') }}" class="btn btn-primary f-right">등록</a>
-        </div>
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2 menu-title">전광판관리</h5>
+    <div class="search-cont">
+        <form id="searchForm" method="get" action="{{ url_for('eld._list') }}">
+            <input type="hidden" id="page" name="page" value="{{ page }}">
+            <div class="search-row">
+                <label for="s_ty_gubun">전광판구분</label>
+                <select name="s_ty_gubun" id="s_ty_gubun" class="form-select m-right5px" title="전광판구분">
+                    <option value="">전체</option>
+                    {% if ty_gubun_list %}
+                    {% for ty_data in ty_gubun_list %}
+                    <option value="{{ty_data.ty_gubun}}" {% if ty_data.ty_gubun==search_list["s_ty_gubun"] %}selected{% endif %}>{{ty_data.ty_gubun}}</option>
+                    {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            <div class="search-row">
+                <label for="s_gubun">검색구분</label>
+                <select name="s_gubun" id="s_gubun" class="form-select" title="검색구분">
+                    <option value="">전체</option>
+                    <option value="id_settop" {% if search_list["s_gubun"]=="id_settop" %}selected{% endif %}>셋탑ID</option>
+                    <option value="ds_title" {% if search_list["s_gubun"]=="ds_title" %}selected{% endif %}>개소명</option>
+                    <option value="ds_addr" {% if search_list["s_gubun"]=="ds_addr" %}selected{% endif %}>설치장소</option>
+                </select>
+                <input type="text" name="stx" id="stx" class="form-control search-txt" value="{{ search_list['stx'] or '' }}" autocomplete="off" placeholder="검색내용 입력">
+                <button class="btn btn-outline-secondary" type="button" id="btn_search">조회</button>
+                <button class="btn btn-outline-secondary" type="button" id="btn_reset">초기화</button>
+            </div>
+        </form>
     </div>
-    <table class="table">
+    <span class="total">전체&nbsp;<strong>{{total}}</strong>&nbsp;건</span>
+    <a href="{{ url_for('eld.ins') }}" class="btn btn-primary f-right btn-ins">등록</a>
+    <table class="responsive-table">
         <thead>
-        <tr class="text-center table-dark">
-            <th class="th-num">번호</th>
-            <th>구분</th>
-            <th>셋탑ID</th>
-            <th>개소명</th>
-            <th>설치장소</th>
-            <th>가로/세로</th>
-            <th>등록자</th>
-            <th>등록일시</th>
+        <tr>
+            <th scope="col" class="text-center">번호</th>
+            <th scope="col">개소명</th>
+            <th scope="col">구분</th>
+            <th scope="col">셋탑ID</th>
+            <th scope="col">설치장소</th>
+            <th scope="col">가로/세로</th>
+            <th scope="col">등록자</th>
+            <th scope="col">등록일시</th>
         </tr>
         </thead>
         <tbody>
         {% if eld_list %}
         {% for eld in eld_list %}
-        <tr class="text-center">
-            <td>{{ pagination.total - ((pagination.page-1) * pagination.per_page) - loop.index0 }}</td>
-            <td>{{eld.ty_gubun}}</td>
-            <td><a href="{{ url_for('eld.view', seq_elet=eld.seq_elet) }}">{{ eld.id_settop }}</a></td>
-            <td>{{eld.ds_title}}</td>
-            <td>{{eld.ds_addr}}</td>
-            <td>{{eld.no_width}}px/{{eld.no_height}}px</td>
-            <td>{{eld.ds_name}}</td>
-            <td>{{eld.dt_create|ymdhm}}</td>
+        <tr>
+            <td data-title="번호" class="th-num">{{ pagination.total - ((pagination.page-1) * pagination.per_page) - loop.index0 }}</td>
+            <th scope="row"><a href="{{ url_for('eld.view', seq_elet=eld.seq_elet) }}">{{eld.ds_title}}</a></th>
+            <td data-title="구분">{{eld.ty_gubun}}</td>
+            <td data-title="셋탑ID">{{ eld.id_settop }}</td>
+            <td data-title="설치장소">{{eld.ds_addr}}</td>
+            <td data-title="가로/세로">{{eld.no_width}}px/{{eld.no_height}}px</td>
+            <td data-title="등록자">{{eld.ds_name}}</td>
+            <td data-title="등록일시">{{eld.dt_create|ymdhm}}</td>
         </tr>
         {% endfor %}
         {% else %}
         <tr>
-            <td colspan="8" class="txt-center">데이터가 없습니다.</td>
+            <td colspan="8" class="txt-center txt-bold">데이터가 없습니다.</td>
         </tr>
         {% endif %}
         </tbody>

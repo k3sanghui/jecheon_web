@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2 menu-title">서비스신청 - 관리자</h5>
+    <form id="frm" method="post" enctype = "multipart/form-data" class="my-3 frm-view">
+        <input type="hidden" name="seq_user" id="seq_user" value="{{g.user.seq_user}}">
+        <input type="hidden" name="ds_app_title" id="ds_app_title" value="">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_app_name" class="frm-label">신청자<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_app_name" id="ds_app_name" value="{{ g.user.ds_name }}" readonly autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_app_tel" class="frm-label">연락처<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_app_tel" id="ds_app_tel" value="{{ g.user.ds_tel }}" readonly autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="seq_elet" class="frm-label">개소명<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <select name="seq_elet" id="seq_elet" title="개소명" class="form-select">
+                        <option>-선택-</option>
+                        {% if title_list %}
+                        {% for title in title_list %}
+                        <option {% if form.seq_elet.data == title.seq_elet %} selected {% endif %} value="{{title.seq_elet}}" data-title="{{title.ds_title}}" data-addr="{{title.ds_addr}}" data-width="{{title.no_width}}" data-height="{{title.no_height}}">{{title.ds_title}}</option>
+                        {% endfor %}
+                        {% endif %}
+                </select>
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_addr" class="frm-label">설치장소<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_addr" id="ds_addr" value="{{ form.ds_addr.data or '' }}" readonly autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="no_width" class="frm-label">가로(px)<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-1">
+                <input type="" class="form-control" name="no_width" id="no_width" value="{{ form.no_width.data or '' }}" readonly autocomplete="off">
+            </div>
+            <div class="col-md-1">
+                <label for="no_height" class="frm-label">세로(px)<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-1">
+                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ form.no_height.data or '' }}" readonly autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_text" class="frm-label">신청문구<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-10">
+                <input type="text" class="form-control" name="ds_text" id="ds_text" value="{{ form.ds_text.data or '' }}" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <label for="ds_reason" class="frm-label">신청사유<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-10">
+                <input type="text" class="form-control" name="ds_reason" id="ds_reason" value="{{ form.ds_reason.data or '' }}" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row input-date">
+            <div class="col-md-1">
+                <label for="dt_start" class="frm-label">출력시작<span class="required"> *</span></label>
+            </div>
+            <div class="col-3 col-md-2">
+                <input type="text" class="form-control" name="dt_start" id="dt_start" value="{{ form.dt_start.data or '' }}" autocomplete="off">
+            </div>
+            <div class="col-md-1">
+                <label for="dt_end" class="frm-label">출력종료<span class="required"> *</span></label>
+            </div>
+            <div  class="col-3 col-md-2">
+                <input type="text" class="form-control" name="dt_end" id="dt_end" value="{{ form.dt_end.data or '' }}" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('app._list') }}" class="btn btn-secondary">취소</a>
+            <button type="submit" class="btn btn-primary">저장</button>
+        </div>
+    </form>
+</div>
+<script type='text/javascript'>
+$(function(){
+    var seq_elet ="{{form.seq_elet.data}}"
+    if (seq_elet){
+        var title = $("#seq_elet").find("option:selected").data("title");
+        var addr = $("#seq_elet").find("option:selected").data("addr");
+        var width = $("#seq_elet").find("option:selected").data("width");
+        var height = $("#seq_elet").find("option:selected").data("height");
+        $('#ds_app_title').val(title);
+        $('#ds_addr').val(addr);
+        $('#no_width').val(width);
+        $('#no_height').val(height);
+    }
+
+    $('#dt_start').datepicker({format : "yyyy-mm-dd",}).datepicker("setDate", new Date());
+    $('#dt_end').datepicker({format : "yyyy-mm-dd",}).datepicker("setDate", new Date());
+});
+$("div.input-date").each(function(){
+    var $inputs = $(this).find('input');
+    $inputs.datepicker({language : "ko"});
+    if ($inputs.length >= 2) {
+        var $from = $inputs.eq(0);
+        var $to   = $inputs.eq(1);
+        $from.on('changeDate', function (e) {
+            var d = new Date(e.date.valueOf());
+            $to.datepicker('setStartDate', d); // 종료일은 시작일보다 빠를 수 없다.
+        });
+        $to.on('changeDate', function (e) {
+            var d = new Date(e.date.valueOf());
+            $from.datepicker('setEndDate', d); // 시작일은 종료일보다 늦을 수 없다.
+        });
+    }
+});
+
+//개소명 선택시
+$('#seq_elet').on('change', function(){
+    var title = $(this).find("option:selected").data("title");
+    var addr = $(this).find("option:selected").data("addr");
+    var width = $(this).find("option:selected").data("width");
+    var height = $(this).find("option:selected").data("height");
+    $('#ds_app_title').val(title);
+    $('#ds_addr').val(addr);
+    $('#no_width').val(width);
+    $('#no_height').val(height);
+});
+
+</script>
+{% endblock %}

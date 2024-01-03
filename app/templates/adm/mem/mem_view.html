@@ -1,32 +1,55 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
-    <h5 class="my-3 border-bottom pb-2">회원가입 - 상세</h5>
-    <form method="post" class="my-3">
-        <div class="mb-3">
-            <span>아이디</span>
-            <span>{{mem.id_user}}</span>
+    <h5 class="my-3 border-bottom pb-2 menu-title">회원가입 - 상세</h5>
+    <a href="javascript:void(0)" data-uri="{{ url_for('mem._del', seq_user=mem.seq_user) }}" class="delete btn btn-danger" style="position: relative; margin-top: -60px; float: right;">삭제</a>
+    <div class="frm-view">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2"><span class="frm-label">아이디</span></div>
+            <div class="col-6 col-md-4">{{mem.id_user}}</div>
         </div>
-         <div class="mb-3">
-            <span>이름</span>
-             <span>{{mem.ds_name}}</span>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2"><span class="frm-label">이름</span></div>
+            <div class="col-6 col-md-4">{{mem.ds_name}}</div>
         </div>
-        <div class="mb-3">
-            <span>연락처</span>
-            <span>{{mem.ds_tel}}</span>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2"><span class="frm-label">연락처</span></div>
+            <div class="col-6 col-md-4">{{mem.ds_tel}}</div>
         </div>
-        <div class="mb-3">
-            <span>이메일</span>
-            <span>{{mem.ds_email}}</span>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2"><span class="frm-label">이메일</span></div>
+            <div class="col-6 col-md-4">{{mem.ds_email}}</div>
         </div>
-        <div class="mb-3">
-            <span>권한</span>
-            <span>{{mem.no_level}}</span>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2"><span class="frm-label">권한</span></div>
+            <div class="col-6 col-md-4">{{mem.no_level}}</div>
         </div>
-        <a href="{{ url_for('mem._list') }}" class="btn btn-secondary">목록</a>
-        <a href="{{ url_for('mem.mod', seq_user=mem.seq_user) }}" class="btn btn-primary">수정</a>
-    </form>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2"><span class="frm-label">가입일시</span></div>
+            <div class="col-6 col-md-4">{{ mem.dt_create|ymdhm }}</div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2"><span class="frm-label">최종접속</span></div>
+            <div class="col-6 col-md-4">{% if mem.dt_today %}{{ mem.dt_today|ymdhm }}{% endif %}</div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2"><span class="frm-label">탈퇴일시</span></div>
+            <div class="col-6 col-md-4">{% if mem.yn_withraw=='Y' %}{{ mem.dt_withraw|ymdhm }}{% endif %}</div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('mem._list') }}" class="btn btn-secondary">목록</a>
+            <a href="{{ url_for('mem.mod', seq_user=mem.seq_user) }}" class="btn btn-primary">수정</a>
+        </div>
+    </div>
 </div>
 <script type='text/javascript'>
+const delete_elements = document.getElementsByClassName("delete");
+Array.from(delete_elements).forEach(function(element) {
+    element.addEventListener('click', function() {
+        if(confirm("정말로 삭제하시겠습니까?")) {
+            location.href = this.dataset.uri;
+        };
+    });
+});
 </script>
 {% endblock %}

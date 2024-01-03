@@ -1,63 +1,108 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
-    <h5 class="my-3 border-bottom pb-2">회원가입</h5>
-    <form method="post">
+    <h5 class="my-3 border-bottom pb-2 menu-title">회원가입{% if not seq_user %} - 등록{% else %} - 수정{% endif %}</h5>
+    <form method="post" class="frm-view" onsubmit="return fn_submit(this);">
         {{ form.csrf_token }}
         {% include "form_errors.html" %}
         <input type="hidden" name="over_lap" id="over_lap" value="N">
         <input type="hidden" name="yn_emailcertify" id="yn_emailcertify" value="N">
-        <div class="mb-3">
-            <label for="id_user">아이디</label>
-            <div class="d-flex">
-                <input type="text" class="form-control w-25rem" name="id_user" id="id_user"
-                       value="{{ form.id_user.data or '' }}">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="id_user" class="frm-label">아이디<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="id_user" id="id_user"
+                       value="{{ form.id_user.data or '' }}" {% if seq_user %}readonly="readonly"{% endif %} autocomplete="off">
+            </div>
+            <div class="col-6 col-md-4">
                 {% if not seq_user %}
-                <a href="javascript:void(0)" class="btn_over_lap btn btn-secondary" data-uri="{{ url_for('auth.over_lap', ) }}" style="margin-left:1rem">중복체크</a>
+                <a href="javascript:void(0)" class="btn_over_lap btn btn-secondary" data-uri="{{ url_for('auth.over_lap', ) }}">중복체크</a>
                 {% endif %}
             </div>
         </div>
-        <div class="mb-3">
-            <label for="ds_password">비밀번호</label>
-            <input type="password" class="form-control w-25rem" name="ds_password" id="ds_password"
-                   value="{{ form.ds_password.data or '' }}">
-        </div>
-        <div class="mb-3">
-            <label for="ds_password_check">비밀번호 확인</label>
-            <input type="password" class="form-control w-25rem" name="ds_password_check" id="ds_password_check"
-                   value="{{ form.ds_password_check.data or '' }}">
-        </div>
-         <div class="mb-3">
-            <label for="ds_name">이름</label>
-            <input type="text" class="form-control w-25rem" name="ds_name" id="ds_name"
-                   value="{{ form.ds_name.data or '' }}">
-        </div>
-        <div class="mb-3">
-            <label for="ds_tel">연락처</label>
-            <input type="text" class="form-control w-25rem" name="ds_tel" id="ds_tel"
-                   value="{{ form.ds_tel.data or '' }}">
-        </div>
-        <div class="mb-3">
-            <label for="ds_email">이메일</label>
-            <div class="d-flex">
-                <input type="text" class="form-control w-25rem" name="ds_email" id="ds_email"
-                       value="{{ form.ds_email.data or '' }}" style="width: 25rem;">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_password" class="frm-label">비밀번호{% if not seq_user %}<span class="required"> *</span>{% endif %}</label>
+            </div>
+            <div class="col-6 col-md-4">
+            <input type="password" class="form-control" name="ds_password" id="ds_password"
+                   value="{{ form.ds_password.data or '' }}" autocomplete="off">
             </div>
         </div>
-        <div class="mb-3">
-            <label for="no_level">권한</label>
-            <select name="no_level" id="no_level" title="권한" class="form-control" style="width:5rem;">
-                {% for i in range(1,11) %}
-                <option value="{{i}}" {% if form.no_level.data == i %} selected {% endif %}>{{i}}</option>
-                {% endfor%}
-            </select>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_password_check" class="frm-label">비밀번호 확인{% if not seq_user %}<span class="required"> *</span>{% endif %}</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="password" class="form-control" name="ds_password_check" id="ds_password_check"
+                   value="{{ form.ds_password_check.data or '' }}" autocomplete="off">
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="ds_bigo">비고</label>
-            <input type="text" class="form-control" name="ds_bigo" id="ds_bigo" value="{{ form.ds_bigo.data or '' }}">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_name" class="frm-label">이름<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_name" id="ds_name"
+                   value="{{ form.ds_name.data or '' }}" autocomplete="off">
+            </div>
         </div>
-        <a href="" class="btn btn-secondary">취소</a>
-        <button type="submit" class="btn btn-primary">저장</button>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_tel" class="frm-label">연락처<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_tel" id="ds_tel"
+                   value="{{ form.ds_tel.data or '' }}" onKeyup="this.value=this.value.replace(/[^0-9]/g,'');" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_email" class="frm-label">이메일<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="text" class="form-control" name="ds_email" id="ds_email"
+                       value="{{ form.ds_email.data or '' }}" style="width: 25rem;" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="no_level" class="frm-label">권한<span class="required"> *</span></label>
+            </div>
+            <div class="col-6 col-md-1">
+                <select name="no_level" id="no_level" title="권한" class="form-select" >
+                    {% for i in range(2,11) %}
+                    <option value="{{i}}" {% if form.no_level.data == i %} selected {% endif %}>{{i}}</option>
+                    {% endfor%}
+                </select>
+            </div>
+        </div>
+        {% if seq_user %}
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="yn_withraw" class="frm-label">탈퇴여부</label>
+            </div>
+            <div class="col-6 col-md-1">
+                <select id="yn_withraw" name="yn_withraw" class="form-select">
+                    <option {% if form.yn_withraw.data == "N" %} selected {% endif %}>N</option>
+                    <option {% if form.yn_withraw.data == "Y" %} selected {% endif %}>Y</option>
+                </select>
+            </div>
+        </div>
+        {% endif %}
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_bigo" class="frm-label">비고</label>
+            </div>
+            <div class="col-6 col-md-10">
+                <input type="text" class="form-control" name="ds_bigo" id="ds_bigo" value="{{ form.ds_bigo.data or '' }}" autocomplete="off">
+            </div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('mem._list') }}" class="btn btn-secondary">취소</a>
+            <button type="submit" class="btn btn-primary">저장</button>
+        </div>
     </form>
 </div>
 <script type='text/javascript'>
@@ -83,5 +128,76 @@ Array.from(btn_over_lap).forEach(function(element) {
         })
     });
 });
+
+
+function fn_submit(f){
+    {% if not seq_user %}
+    if(!f.id_user.value){
+        alert('아이디는 필수 입력 입니다.');
+        f.id_user.focus();
+        return false;
+    }else{
+        if(f.over_lap.value != "Y"){
+            alert('아이디 중복체크를 하지 않으셨습니다.');
+            return false;
+        }
+    }
+
+    if(f.ds_password.value.length < 8){
+        alert('비밀번호를 8글자 이상 입력하세요.');
+        f.ds_password.focus();
+        return false;
+    }
+
+    {% else %}
+    if(f.ds_password.value.length > 0){
+        if(f.ds_password.value.length < 8){
+            alert('비밀번호를 8글자 이상 입력하세요.');
+            f.ds_password.focus();
+            return false;
+        }
+    }
+    {% endif %}
+
+    if(f.ds_password.value != f.ds_password_check.value){
+        alert("비밀번호가 같지 않습니다.");
+        f.ds_password_check.focus();
+        return false;
+    }
+
+    if (f.ds_name.value.length < 1) {
+        alert("이름은 필수 입력 입니다.");
+        f.ds_name.focus();
+        return false;
+    }
+
+    if (f.ds_tel.value.length < 1) {
+        alert("연락처는 필수 입력 입니다.");
+        f.ds_tel.focus();
+        return false;
+    }else{
+        tel_chk = phoneNumberCheck(f.ds_tel.value.replaceAll("-",""));
+        if(!tel_chk){
+            alert("연락처 형식이 올바르지 않습니다.");
+            f.ds_tel.focus();
+            return false;
+        }
+    }
+
+    if (f.ds_email.value.length < 1) {
+        alert("이메일은 필수 입력 입니다.");
+        f.ds_email.focus();
+        return false;
+    }else{
+        email_chk = emailCheck(f.ds_email.value);
+        if(!email_chk){
+            alert("유효하지 않은 이메일 주소입니다.");
+            f.ds_email.focus();
+            return false;
+        }
+    }
+    document.getElementById("btn_submit").disabled = "disabled";
+    return true;
+}
 </script>
 {% endblock %}

@@ -9,15 +9,12 @@
 ################################################
 import os.path
 
-import fleep
-from flask import Blueprint, url_for, render_template, flash, request, session, g, jsonify, Flask, send_file
+from flask import Blueprint, url_for, render_template, flash, request, g, send_file
 from flask_paginate import Pagination, get_page_args
-from requests import Response
 from werkzeug.utils import redirect, secure_filename
 from app.forms.notice_forms import NoticeForm
 from app.lib.common import file_info, allowed_file
 from app.lib.db_function import sql_query, sql_fetch, sql_fetch_array
-from app.module import dbModule
 from app.lib import common
 from datetime import datetime
 from app.views.auth_views import login_required
@@ -32,16 +29,22 @@ bp = Blueprint('notice', __name__, url_prefix='/cmm/notice')
 
 @bp.route('/list/', methods=('GET', 'POST'))
 def _list():
-    db_class = dbModule.Database()
+    sql_search = ""
+    s_gubun = request.args.get('s_gubun')
+    stx = request.args.get('stx')
+    if stx is not None and stx != "":
+        if s_gubun is not None and s_gubun != "":
+            sql_search += f" and a.{s_gubun} like '%%{stx}%%'"
+        else:
+            sql_search += f" and (a.ds_subject like '%%{stx}%%' or a.ds_content like '%%{stx}%%' )"
     per_page = 10
     page, _, offset = get_page_args(per_page=per_page)
-    total_sql = "select count(*) as total from " + noti_tbl + " where 1=1 and yn_removed = 'N'"
-    total = db_class.executeOne(total_sql)
+    total_sql = f"select count(*) as total from {noti_tbl} a where 1=1 and a.yn_removed = 'N' {sql_search}"
+    total = sql_fetch(total_sql)
 
-    sql = "SELECT a.*, (select ds_name from tapp_memb010 where id_user=a.id_create) as ds_name FROM " + noti_tbl + " a where 1=1 and a.yn_removed = 'N' order by a.seq_noti desc limit %s offset %s;"
+    sql = f"SELECT a.*, (select ds_name from tapp_memb010 where id_user=a.id_create) as ds_name FROM {noti_tbl} a where 1=1 and a.yn_removed = 'N' {sql_search} order by a.seq_noti desc limit %s offset %s;"
     sql_common = (per_page, offset)
-    notice_list = db_class.executeAll(sql, sql_common)
-    db_class.close()
+    notice_list = sql_fetch_array(sql, sql_common)
 
     pagination = Pagination(
         page=page,  # 지금 우리가 보여줄 페이지는 1 또는 2, 3, 4, ... 페이지인데,
@@ -51,7 +54,7 @@ def _list():
         next_label="다음",  # 후 페이지로 가는 링크의 버튼 모양을 알려주고,
         format_total=True,  # 총 몇 개의 포스트 중 몇 개의 포스트를 보여주고있는지 시각화,
     )
-    return render_template('cmm/notice/notice_list.html', notice_list=notice_list, pagination=pagination, search=True, bs_version=5,)
+    return render_template('cmm/notice/notice_list.html', notice_list=notice_list, total=total['total'], pagination=pagination, search=True, bs_version=5, search_list=request.args)
 
 
 @bp.route('/ins/', methods=('GET', 'POST'))
@@ -127,7 +130,7 @@ def mod(seq_noti):
                                          " where seq_noti = %s RETURNING seq_noti;"
 
             sql_common = (form.ds_subject.data, form.ds_content.data, g.user['id_user'], now, ip, seq_noti,)
-            data = sql_query(sql, sql_common)
+            seq_noti = sql_query(sql, sql_common)
             file = request.files['file']
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
@@ -157,26 +160,19 @@ def mod(seq_noti):
 @bp.route('/del/<int:seq_noti>/')
 @login_required
 def _del(seq_noti):
-    db_class = dbModule.Database()
     ip = common.get_ip()
-    sql = "update " + noti_tbl + " set yn_removed = 'Y', " \
-                            " id_update = %s, " \
-                            " dt_update = %s, " \
-                            " ip_update = %s " \
-                            " where seq_noti = %s RETURNING seq_noti;"
+    if g.user['no_level'] > 5:
+        sql = "update " + noti_tbl + " set yn_removed = 'Y', " \
+                                " id_update = %s, " \
+                                " dt_update = %s, " \
+                                " ip_update = %s " \
+                                " where seq_noti = %s RETURNING seq_noti;"
 
-    sql_common = ("a", now, ip, seq_noti,)
-    data = db_class.execute(sql, sql_common)
-    db_class.commit()
-    db_class.close()
-    '''
-    question = Question.query.get_or_404(question_id)
-    if g.user != question.user:
+        sql_common = (g.user['id_user'], now, ip, seq_noti,)
+        seq_noti = sql_query(sql, sql_common)
+    else:
         flash('삭제권한이 없습니다')
-        return redirect(url_for('question.detail', question_id=question_id))
-    db.session.delete(question)
-    db.session.commit()
-    '''
+        return redirect(url_for('notice.mod', seq_noti=seq_noti))
     return redirect(url_for('notice._list'))
 
 

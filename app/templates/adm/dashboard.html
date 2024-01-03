@@ -1,6 +1,72 @@
-{% extends "./adm.html" %}
+{% extends 'base.html' %}
 {% block content %}
-<div class="container">
-    <h5 class="my-3 border-bottom pb-2">대시보드</h5>
+<div class="container" id="dash-cont">
+    <div class="my-3">
+        <div class="dash-more dash-border-bottom">
+            <h5 class="dash-title">금일신청</h5>
+            <a href="{{ url_for('app._list', chk='now_app') }}" class="btn btn-outline-secondary">더보기</a>
+        </div>
+        <table class="responsive-table">
+            <thead>
+            <tr>
+                <th scope="col">개소명</th>
+                <th scope="col">신청자</th>
+                <th scope="col">신청일시</th>
+                <th scope="col">신청문구</th>
+                <th scope="col">출력시작</th>
+                <th scope="col">출력종료</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if day_list %}
+            {% for day_app in day_list %}
+            <tr>
+                <th scope="row"><a href="{{ url_for('app.mod', seq_app=day_app.seq_app) }}">{{day_app.ds_app_title}}</a></th>
+                <td data-title="신청자">{{day_app.ds_app_name}}</td>
+                <td data-title="신청일시">{{day_app.dt_create|ymdhm}}</td>
+                <td data-title="신청문구">{{day_app.ds_text}}</td>
+                <td data-title="출력시작">{{day_app.dt_start}}</td>
+                <td data-title="출력종료">{{day_app.dt_end}}</td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="6" class="txt-center txt-bold">데이터가 없습니다.</td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <div class="my-3">
+        <div class="dash-more dash-border-bottom">
+            <h5 class="dash-title">현재출력정보</h5>
+            <a href="{{ url_for('app._list', chk='now_info') }}" class="btn btn-outline-secondary">더보기</a>
+        </div>
+        <table class="responsive-table">
+            <thead>
+            <tr>
+                <th scope="col">개소명</th>
+                <th scope="col">출력기간</th>
+                <th scope="col">출력정보</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if now_list %}
+            {% for now_row in now_list %}
+            <tr>
+                <th class="td-middle"><a href="{{ url_for('app.view', seq_app=now_row.seq_app) }}">{{now_row.ds_app_title}}</a></th>
+                <td data-title="출력기간" class="td-middle">{{now_row.dt_start}}~{{now_row.dt_end}}</td>
+                <td data-title="출력정보"><image class="itemimage" src="{{ url_for('app.view_file', filename=now_row.ds_chafile) }}" style="width:10rem;"></image></td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="3" class="txt-center txt-bold">데이터가 없습니다.</td>
+            </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+
 </div>
 {% endblock %}

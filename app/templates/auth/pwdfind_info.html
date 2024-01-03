@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="find-cont" class="container">
+    <h5 class="my-3 border-bottom pb-2 menu-title">비밀번호 재설정</h5>
+    <form method="post" action="{{ url_for('auth.pwdFindInfo') }}" onsubmit="return fn_submit(this);" class="frm-view">
+        <input type="hidden" name="ds_email" id="ds_email" value="{{ form.ds_email.data or '' }}">
+        {{ form.csrf_token }}
+        {% include "form_errors.html" %}
+        {% if form %}
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_password" class="frm-label">비밀번호</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="password" class="form-control" name="ds_password" id="ds_password"
+                           value="">
+            </div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-2">
+                <label for="ds_password_check" class="frm-label">비밀번호 확인</label>
+            </div>
+            <div class="col-6 col-md-4">
+                <input type="password" class="form-control" name="ds_password_check" id="ds_password_check"
+                           value="">
+            </div>
+        </div>
+        {% else %}
+        <div class="mb-3 row frm-row">
+            <div class="text-center">등록된 회원정보가 없습니다.</div>
+        </div>
+        {% endif %}
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary" style="width:10rem;">처음으로</a>
+            <button type="submit" id="btn_submit" accesskey="s" class="btn btn-primary btn-next" style="width:10rem;">비밀번호재설정</button>
+        </div>
+    </form>
+</div>
+<script type='text/javascript'>
+function fn_submit(f){
+/*
+    if(!f.ds_password.value){
+        alert('비밀번호는 필수 입력 입니다.');
+        f.ds_password.focus();
+        return false;
+    }
+
+    if(f.ds_password.value.length > 0){
+        if(f.ds_password.value.length < 8){
+            alert('비밀번호를 8글자 이상 입력하세요.');
+            f.ds_password.focus();
+            return false;
+        }
+    }
+
+    if (f.ds_password.value != f.ds_password_check.value) {
+        alert("비밀번호가 같지 않습니다.");
+        f.ds_password_check.focus();
+        return false;
+    }
+    */
+
+    document.getElementById("btn_submit").disabled = "disabled";
+    return true;
+}
+</script>
+{% endblock %}

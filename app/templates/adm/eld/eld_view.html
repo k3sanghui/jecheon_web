@@ -1,42 +1,48 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container">
-    <h5 class="my-3 border-bottom pb-2">전광판관리 - 상세</h5>
+    <h5 class="my-3 border-bottom pb-2 menu-title">전광판관리 - 상세</h5>
     <a href="javascript:void(0)" data-uri="{{ url_for('eld._del', seq_elet=eld.seq_elet) }}" class="delete btn btn-danger" style="position: relative; margin-top: -60px; float: right;">삭제</a>
-    <form method="post" class="my-3">
-        <div class="mb-3">
-            <label for="ty_gubun">구분</label>
-            <input type="text" class="form-control" name="ty_gubun" id="ty_gubun" value="{{ eld.ty_gubun}}" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="id_settop">셋탑ID</label>
-            <input type="text" class="form-control" name="id_settop" id="id_settop" value="{{ eld.id_settop}}" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="ds_title">개소명</label>
-            <input type="text" class="form-control" name="ds_title" id="ds_title" value="{{ eld.ds_title}}" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="ds_addr">설치장소</label>
-            <input type="text" class="form-control" name="ds_addr" id="ds_addr" value="{{ eld.ds_addr}}" readonly>
-        </div>
-        <div class="mb-3 d-flex">
-            <div style="margin-right:5rem;">
-                <label for="no_width">가로(px)</label>
-                <input type="text" class="form-control" name="no_width" id="no_width" value="{{ eld.no_width}}" readonly>
+    <div class="frm-view">
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <span class="frm-label">구분</span>
             </div>
-            <div>
-                <label for="no_height">세로(px)</label>
-                <input type="text" class="form-control" name="no_height" id="no_height" value="{{ eld.no_height}}" readonly>
+            <div class="col-6 col-md-4">{{ eld.ty_gubun }}</div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <span class="frm-label">셋탑ID</span>
             </div>
+            <div class="col-6 col-md-4">{{ eld.id_settop }}</div>
         </div>
-        <div class="mb-3">
-            <label for="ds_bigo">비고</label>
-            <input type="text" class="form-control" name="ds_bigo" id="ds_bigo" value="{{ eld.ds_bigo}}" readonly>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <span class="frm-label">개소명</span>
+            </div>
+            <div class="col-6 col-md-4">{{ eld.ds_title }}</div>
         </div>
-        <a href="{{ url_for('eld._list') }}" class="btn btn-secondary">목록</a>
-        <a href="{{ url_for('eld.mod', seq_elet=eld.seq_elet) }}" class="btn btn-primary">수정</a>
-    </form>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1">
+                <span class="frm-label">설치장소</span>
+            </div>
+            <div class="col-6 col-md-4">{{ eld.ds_addr }}</div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1"><span class="frm-label">가로(px)</span></div>
+            <div class="col-3 col-md-1">{{ eld.no_width}}</div>
+            <div class="col-md-1"><span class="frm-label">세로(px)</span></div>
+            <div class="col-3 col-md-1">{{ eld.no_height}}</div>
+        </div>
+        <div class="mb-3 row frm-row">
+            <div class="col-md-1"><span class="frm-label">비고</span></div>
+            <div class="col-11 col-md-11">{{ eld.ds_bigo }}</div>
+        </div>
+        <div class="mb-3 btn-center">
+            <a href="{{ url_for('eld._list') }}" class="btn btn-secondary">목록</a>
+            <a href="{{ url_for('eld.mod', seq_elet=eld.seq_elet) }}" class="btn btn-primary">수정</a>
+        </div>
+    </div>
 </div>
 <script type='text/javascript'>
 const delete_elements = document.getElementsByClassName("delete");
